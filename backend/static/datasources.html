@@ -1,0 +1,2659 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datasources</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%233B82F6' d='M466.5 83.7l-192-80a48.15 48.15 0 0 0-36.9 0l-192 80C27.7 91.1 16 108.6 16 128c0 198.5 114.5 335.7 221.5 380.3 11.8 4.9 25.1 4.9 36.9 0C360.1 472.6 496 349.3 496 128c0-19.4-11.7-36.9-29.5-44.3zM256.1 446.3l-.1-381 175.9 73.3c-3.3 151.4-82.1 261.1-175.8 307.7z'/></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0f172a;
+      --secondary: #3b82f6;
+      --secondary-dark: #2563eb;
+      --accent: #8b5cf6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --warning-dark: #d97706;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --bg-secondary: #ffffff;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-tertiary: #94a3b8;
+      --radius: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    body {
+      font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      background: var(--primary);
+      padding: 32px 24px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo i {
+      font-size: 1.6rem;
+      color: var(--secondary);
+      background: rgba(59, 130, 246, 0.15);
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius);
+      font-size: 0.94rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link i {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      transform: translateX(2px);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg,
+          var(--secondary) 0%,
+          var(--secondary-dark) 100%);
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .main-content {
+      margin-left: 260px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--bg-secondary);
+      padding: 24px 40px;
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-title i {
+      font-size: 1.5rem;
+      color: var(--secondary);
+      background: rgba(59, 130, 246, 0.1);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+    }
+
+    .add-btn {
+      padding: 11px 20px;
+      background: linear-gradient(135deg,
+          var(--secondary) 0%,
+          var(--secondary-dark) 100%);
+      color: white;
+      border-radius: var(--radius);
+      font-size: 0.94rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .add-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .content-area {
+      padding: 36px 40px;
+      max-width: 1600px;
+    }
+
+    .filter-section {
+      background: white;
+      padding: 24px 32px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      display: flex;
+      gap: 20px;
+      align-items: end;
+    }
+
+    .filter-group {
+      flex: 1;
+      position: relative;
+    }
+
+    .filter-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .filter-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.94rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      background: var(--bg-secondary);
+    }
+
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: white;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      max-height: 250px;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .search-dropdown.show {
+      display: block;
+    }
+
+    .search-option {
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-light);
+      transition: all 0.2s ease;
+    }
+
+    .search-option:hover {
+      background: var(--bg);
+    }
+
+    .search-option-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .search-option-code {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, #fafbfc 0%, #ffffff 100%);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .stats-badge {
+      background: var(--bg);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    thead {
+      border-bottom: 2px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    th {
+      background: #fafbfc;
+      padding: 18px 16px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      border-bottom: none;
+    }
+
+    th:nth-child(1) {
+      width: 20%;
+    }
+
+    th:nth-child(2) {
+      width: 20%;
+    }
+
+    th:nth-child(3) {
+      width: 20%;
+    }
+
+    th:nth-child(4) {
+      width: 12%;
+    }
+
+    th:nth-child(5) {
+      width: 28%;
+    }
+
+    td {
+      padding: 28px 16px;
+      border-bottom: none;
+      font-size: 0.94rem;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      vertical-align: middle;
+    }
+
+    tr:hover {
+      background: #f8fafc;
+      box-shadow: inset 3px 0 0 var(--secondary);
+    }
+
+    .datasource-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: rgba(16, 163, 117, 0.1);
+      color: var(--success);
+    }
+
+    .status-inactive {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-secondary);
+    }
+
+    .actions {
+      display: inline-flex;
+      gap: 4px;
+      justify-content: center;
+      flex-wrap: nowrap;
+      align-items: center;
+      margin: 6px 0;
+    }
+
+    .action-btn {
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .action-btn i {
+      font-size: 0.8rem;
+      margin-right: 4px;
+    }
+
+    .action-btn:hover {
+      background: var(--secondary);
+      color: white;
+      border-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+    }
+
+    .action-btn.delete:hover {
+      background: var(--danger);
+      border-color: var(--danger);
+      box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 0;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 600px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.3s ease;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 2px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, #fafbfc 0%, #ffffff 100%);
+      flex-shrink: 0;
+    }
+
+    .modal-header h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header h3 i {
+      width: 40px;
+      height: 40px;
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--secondary);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text-secondary);
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .form-input,
+    .form-textarea,
+    select.form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      background: var(--bg-secondary);
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    select.form-input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: white;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .custom-select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-select-trigger {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      user-select: none;
+      position: relative;
+    }
+
+    .custom-select-trigger.placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .custom-select-trigger:hover {
+      border-color: var(--secondary);
+    }
+
+    .custom-select-trigger.active {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: white;
+    }
+
+    .custom-select-trigger::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      transition: transform 0.2s ease;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .custom-select-trigger.active::after {
+      transform: rotate(180deg);
+    }
+
+    .custom-select-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .custom-select-options.active {
+      display: block;
+    }
+
+    .custom-select-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s ease;
+      color: var(--text-primary);
+    }
+
+    .custom-select-option:hover {
+      background: var(--bg);
+    }
+
+    .custom-select-option.selected {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    select.form-input {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 0;
+    }
+
+    .toggle {
+      width: 52px;
+      height: 28px;
+      background: #cbd5e1;
+      border-radius: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .toggle.active {
+      background: var(--success);
+    }
+
+    .toggle::after {
+      content: "";
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle.active::after {
+      transform: translateX(24px);
+    }
+
+    .toggle-label {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 2px solid var(--border-light);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg,
+          var(--secondary) 0%,
+          var(--secondary-dark) 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+    }
+
+    .delete-modal-content {
+      max-width: 480px;
+    }
+
+    .modal-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .modal-icon i {
+      font-size: 1.8rem;
+      color: var(--danger);
+    }
+
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+
+    .modal-text {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .empty-state {
+      padding: 80px 20px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .empty-icon {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg,
+          rgba(59, 130, 246, 0.08) 0%,
+          rgba(139, 92, 246, 0.08) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+
+    .empty-icon i {
+      font-size: 3.5rem;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .empty-state p {
+      font-size: 0.95rem;
+      color: var(--text-tertiary);
+    }
+
+    .loading {
+      padding: 60px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .loading i {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      color: var(--secondary);
+    }
+
+    .loading-text {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* Configuration Action Link Styles */
+    .config-action-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      padding: 8px 0;
+    }
+
+    .config-action-link:hover {
+      color: var(--secondary-dark);
+      gap: 10px;
+    }
+
+    .config-action-link i {
+      font-size: 1rem;
+    }
+
+    /* NOTIFICATION POPUP */
+    .notification-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .notification-popup.active {
+      display: flex;
+    }
+
+    .notification-content {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+      max-width: 500px;
+      width: 90%;
+      padding: 0;
+      animation: slideUpBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      display: flex;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes slideUpBounce {
+      0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .notification-icon {
+      background: linear-gradient(135deg,
+          var(--secondary) 0%,
+          var(--secondary-dark) 100%);
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notification-icon i {
+      font-size: 2.5rem;
+      color: white;
+    }
+
+    .notification-body {
+      padding: 28px 20px 28px 0;
+      flex: 1;
+    }
+
+    .notification-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .notification-message {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    .notification-link-container {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .notification-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: linear-gradient(135deg,
+          var(--secondary) 0%,
+          var(--secondary-dark) 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+    }
+
+    .notification-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+      gap: 12px;
+    }
+
+    .notification-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(15, 23, 42, 0.05);
+      color: var(--text-secondary);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .notification-close:hover {
+      background: var(--danger);
+      color: white;
+      transform: rotate(90deg);
+    }
+
+    #cancel:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    /* EXPANDABLE DATASOURCE ROW */
+    .expanded-row {
+      display: none;
+    }
+
+    .expanded-row.show {
+      display: table-row;
+    }
+
+    .expanded-content {
+      padding: 24px 32px;
+      background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
+      border-top: 2px solid var(--border);
+    }
+
+    .expanded-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .expanded-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .expanded-field-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .expanded-field-value {
+      font-size: 0.94rem;
+      color: var(--text-primary);
+      font-weight: 500;
+      padding: 10px 12px;
+      background: white;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+    }
+
+    .expanded-field-value.null-value {
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    /* Ultra-compact row hint (reusable) */
+    .table-note {
+      margin: 6px 24px;
+      /* minimal vertical space */
+      padding: 4px 8px;
+
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+
+      background: transparent;
+      border-left: 2px solid var(--secondary);
+    }
+  </style>
+  <link rel="stylesheet" href="responsive.css" />
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="fas fa-shield-alt"></i>
+      <span>FlowEngine</span>
+    </div>
+    <nav class="nav-menu">
+      <a href="index.html" class="nav-link"><i class="fas fa-home"></i>Dashboard</a>
+      <a href="datasources.html" class="nav-link active"><i class="fas fa-database"></i>Datasources</a>
+      <a href="datasource-configs.html" class="nav-link"><i class="fas fa-cog"></i>Datasource Configs</a>
+      <a href="intents.html" class="nav-link"><i class="fas fa-bullseye"></i>Intents</a>
+      <a href="intent-policies.html" class="nav-link"><i class="fas fa-sliders-h"></i>Intent Policies</a>
+      <a href="rules.html" class="nav-link"><i class="fas fa-check-double"></i>Validation Rules</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <h1 class="topbar-title"><i class="fas fa-database"></i>Datasources</h1>
+      <button class="add-btn" onclick="openModal()">
+        <i class="fas fa-plus-circle"></i>Add Datasource
+      </button>
+    </div>
+
+    <div class="content-area">
+      <div class="filter-section">
+        <div class="filter-group">
+          <label class="filter-label">Search Datasource</label>
+          <input type="text" class="filter-input" id="datasourceSearch"
+            placeholder="Type to search datasources or type 'all' for all datasources..." autocomplete="off" />
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Datasource Configuration</div>
+          <div class="stats-badge" id="statsBadge">0 datasources</div>
+        </div>
+        <div class="table-note">
+          Click a row to view full datasource details
+        </div>
+
+        <div id="loadingState" class="loading" style="display: none">
+          <i class="fas fa-spinner fa-spin"></i>
+          <div class="loading-text">Loading datasources...</div>
+        </div>
+
+        <div id="datasourcesContainer"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none">
+          <div class="empty-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <h3>No Datasources Found</h3>
+          <p>Get started by adding your first datasource.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ADD / EDIT DATASOURCE MODAL -->
+  <div class="modal" id="modalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">
+          <i class="fas fa-database"></i>
+          <span id="modalTitleText">Add Datasource</span>
+        </h3>
+        <button class="close-btn" onclick="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="datasourceId" />
+
+        <div class="form-group">
+          <label class="form-label">Name *</label>
+          <input class="form-input" id="datasourceName" placeholder="e.g., CRM_DB, LOAN_CORE_DB" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <div class="custom-select-wrapper">
+            <div class="custom-select-trigger placeholder" id="datasourceTypeTrigger"
+              onclick="toggleCustomSelect('datasourceType')">
+              Select type...
+            </div>
+            <div class="custom-select-options" id="datasourceTypeOptions">
+              <div class="custom-select-option" data-value="">
+                Select type...
+              </div>
+              <div class="custom-select-option" data-value="rest">
+                Rest API
+              </div>
+              <div class="custom-select-option" data-value="graphql">
+                GraphQL
+              </div>
+              <div class="custom-select-option" data-value="postgres">
+                Postgres
+              </div>
+              <div class="custom-select-option" data-value="sqlserver">
+                SQL Server
+              </div>
+              <div class="custom-select-option" data-value="oracle">
+                Oracle
+              </div>
+              <div class="custom-select-option" data-value="hana">
+                SAP HANA
+              </div>
+              <div class="custom-select-option" data-value="sap_hana_client">
+                SAP HANA Client
+              </div>
+              <div class="custom-select-option" data-value="oracle_jdbc">
+                Oracle (JDBC)
+              </div>
+              <div class="custom-select-option" data-value="oracle_odbc">
+                Oracle (ODBC)
+              </div>
+              <div class="custom-select-option" data-value="suiteanalytics_connect">
+                SuiteAnalytics Connect (Oracle)
+              </div>
+              <div class="custom-select-option" data-value="progress_datadirect">
+                Progress DataDirect (Generic SQL)
+              </div>
+              <div class="custom-select-option" data-value="cdata_generic_jdbc">
+                CData Generic (JDBC)
+              </div>
+              <div class="custom-select-option" data-value="cdata_generic_odbc">
+                CData Generic (ODBC)
+              </div>
+              <div class="custom-select-option" data-value="cdata_salesforce_jdbc">
+                Salesforce (CData JDBC)
+              </div>
+              <div class="custom-select-option" data-value="cdata_servicenow_jdbc">
+                ServiceNow (CData JDBC)
+              </div>
+              <div class="custom-select-option" data-value="cdata_servicemax_jdbc">
+                ServiceMax (CData JDBC)
+              </div>
+              <div class="custom-select-option" data-value="dataverse_odbc">
+                Microsoft Dataverse (ODBC)
+              </div>
+              <div class="custom-select-option" data-value="epicor_sqlserver_odbc">
+                Epicor (SQL Server, ODBC)
+              </div>
+              <div class="custom-select-option" data-value="epicor_sqlserver_jdbc">
+                Epicor (SQL Server, JDBC)
+              </div>
+              <div class="custom-select-option" data-value="epicor_cdata_odbc">
+                Epicor (CData ODBC)
+              </div>
+              <div class="custom-select-option" data-value="epicor_cdata_jdbc">
+                Epicor (CData JDBC)
+              </div>
+              <div class="custom-select-option" data-value="epic_sqlserver_odbc">
+                Epic (SQL Server, ODBC)
+              </div>
+              <div class="custom-select-option" data-value="epic_sqlserver_jdbc">
+                Epic (SQL Server, JDBC)
+              </div>
+              <div class="custom-select-option" data-value="cerner_oracle_odbc">
+                Cerner (Oracle, ODBC)
+              </div>
+              <div class="custom-select-option" data-value="cerner_oracle_jdbc">
+                Cerner (Oracle, JDBC)
+              </div>
+              <div class="custom-select-option" data-value="generic">
+                Generic ANSI SQL
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="datasourceType" value="" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Connection Key *</label>
+          <input class="form-input" id="datasourceConnectionKey"
+            placeholder="Key that references datasource_config name" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="datasourceDescription"
+            placeholder="Describe this datasource..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <div class="toggle-container">
+            <div id="datasourceIsActive" class="toggle active" onclick="toggleActive()"></div>
+            <span class="toggle-label" id="activeLabel">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()" id="cancel">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button class="btn btn-primary" onclick="saveDatasource()">
+          <i class="fas fa-check"></i>
+          Save Datasource
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAILS MODAL -->
+  <div class="modal" id="detailsOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <i class="fas fa-database"></i>
+          <span>Datasource Details</span>
+        </h3>
+        <button class="close-btn" onclick="closeDetailsModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <div id="detailName" style="
+                padding: 10px 12px;
+                font-weight: 600;
+                background: var(--bg);
+                border-radius: var(--radius);
+              "></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <div id="detailType" style="
+                padding: 10px 12px;
+                font-weight: 600;
+                background: var(--bg);
+                border-radius: var(--radius);
+              "></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Connection Key</label>
+          <div id="detailConnectionKey" style="
+                padding: 10px 12px;
+                font-weight: 600;
+                background: var(--bg);
+                border-radius: var(--radius);
+              "></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <div id="detailStatus" style="
+                padding: 10px 12px;
+                font-weight: 600;
+                background: var(--bg);
+                border-radius: var(--radius);
+              "></div>
+        </div>
+        <div class="form-group" id="detailDescContainer" style="display: none">
+          <label class="form-label">Description</label>
+          <div id="detailDescription" style="
+                padding: 10px 12px;
+                font-weight: 600;
+                background: var(--bg);
+                border-radius: var(--radius);
+              "></div>
+        </div>
+
+        <div style="
+              padding-top: 16px;
+              border-top: 1px solid var(--border);
+              margin-top: 16px;
+            ">
+          <a href="javascript:void(0);" id="configActionBtn" class="config-action-link" onclick="handleConfigAction()">
+            <i class="fas fa-cog" id="configActionIcon"></i>
+            <span id="configActionText">Add Configuration</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDetailsModal()" id="cancel">
+          <i class="fas fa-times"></i>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG FORM MODAL -->
+  <div class="modal" id="configFormOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <i class="fas fa-cog"></i>
+          <span>Add Datasource Configuration</span>
+        </h3>
+        <button class="close-btn" onclick="closeConfigForm()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Datasource</label>
+          <input class="form-input" id="configDatasource" disabled style="background: var(--bg); cursor: not-allowed" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Configuration Name (Connection Key) *</label>
+          <input class="form-input" id="configName" disabled style="background: var(--bg); cursor: not-allowed" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Protocol *</label>
+          <div class="custom-select-wrapper">
+            <div class="custom-select-trigger placeholder" id="configProtocolTrigger"
+              onclick="toggleCustomSelect('configProtocol')">
+              Select protocol...
+            </div>
+            <div class="custom-select-options" id="configProtocolOptions">
+              <div class="custom-select-option" data-value="">
+                Select protocol...
+              </div>
+              <div class="custom-select-option" data-value="sql">SQL</div>
+              <div class="custom-select-option" data-value="rest">REST</div>
+              <div class="custom-select-option" data-value="graphql">
+                GraphQL
+              </div>
+              <div class="custom-select-option" data-value="file">File</div>
+              <div class="custom-select-option" data-value="stream">
+                Stream
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="configProtocol" value="" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Driver Family *</label>
+          <input class="form-input" id="configDriver" placeholder="e.g., postgres, cdata, servicenow" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Base URL</label>
+          <input class="form-input" id="configBaseUrl" placeholder="e.g., https://api.servicenow.com" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Auth Type</label>
+          <div class="custom-select-wrapper">
+            <div class="custom-select-trigger placeholder" id="configAuthTypeTrigger"
+              onclick="toggleCustomSelect('configAuthType')">
+              Select auth type...
+            </div>
+            <div class="custom-select-options" id="configAuthTypeOptions">
+              <div class="custom-select-option" data-value="">
+                Select auth type...
+              </div>
+              <div class="custom-select-option" data-value="oauth2">
+                OAuth 2.0
+              </div>
+              <div class="custom-select-option" data-value="apikey">
+                API Key
+              </div>
+              <div class="custom-select-option" data-value="basic">
+                Basic Auth
+              </div>
+              <div class="custom-select-option" data-value="none">None</div>
+            </div>
+          </div>
+          <input type="hidden" id="configAuthType" value="" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Auth Config (JSON)</label>
+          <textarea class="form-textarea" id="configAuthConfig" placeholder='{"client_id":"...", "token_url":"..."}'
+            style="font-family: monospace"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Connection JSON</label>
+          <textarea class="form-textarea" id="configConnectionJson" placeholder='{"host":"...", "port":5432}'
+            style="font-family: monospace"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Metadata Reference</label>
+          <input class="form-input" id="configMetadataRef" placeholder="e.g., https://api.example.com/openapi.json" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Router Base URL</label>
+          <input class="form-input" id="configRouterBaseUrl" placeholder="e.g., https://router.example.com/api" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <div class="toggle-container">
+            <div id="configIsActive" class="toggle active" onclick="toggleConfigActive()"></div>
+            <span class="toggle-label" id="configActiveLabel">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeConfigForm()" id="cancel">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button class="btn btn-primary" onclick="saveConfig()">
+          <i class="fas fa-check"></i>
+          Save Configuration
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE MODAL -->
+  <div class="modal" id="deleteOverlay">
+    <div class="modal-content delete-modal-content">
+      <div class="modal-body" style="padding: 32px 24px; text-align: center">
+        <div class="modal-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Delete Datasource</h3>
+        <p class="modal-text">
+          Are you sure you want to delete this datasource?
+          <strong>This will also delete its associated configuration.</strong>
+          This action cannot be undone.
+        </p>
+        <input type="hidden" id="deleteDatasourceId" />
+      </div>
+
+      <div class="modal-footer" style="border-top: none; justify-content: center">
+        <button class="btn btn-secondary" onclick="closeDeleteModal()" id="cancel">
+          Cancel
+        </button>
+        <button class="btn btn-danger" onclick="confirmDelete()">
+          <i class="fas fa-trash"></i>
+          Delete Datasource
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION POPUP -->
+  <div class="notification-popup" id="notificationPopup">
+    <div class="notification-content">
+      <div class="notification-icon">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div class="notification-body">
+        <h4 class="notification-title" id="notificationTitle">
+          Notification
+        </h4>
+        <p class="notification-message" id="notificationMessage">
+          This is a notification message.
+        </p>
+        <div class="notification-link-container" id="notificationLinkContainer" style="display: none">
+          <a href="#" class="notification-link" id="notificationLink">
+            <span id="notificationLinkText">View details</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      <button class="notification-close" onclick="closeNotification()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Check tenant session
+    const tenantId = sessionStorage.getItem("tenant_id");
+    if (!tenantId) {
+      window.location.href = "tenant-login.html";
+    }
+    const API = window.location.origin;
+    let datasources = [];
+    let currentDatasource = null;
+    let searchFilter = null;
+
+    // ==================== NOTIFICATION FUNCTIONS ====================
+    function showNotification(
+      type,
+      title,
+      message,
+      actionLabel = null,
+      actionUrl = null,
+    ) {
+      const titleEl = document.getElementById("notificationTitle");
+      const messageEl = document.getElementById("notificationMessage");
+      const linkContainer = document.getElementById(
+        "notificationLinkContainer",
+      );
+      const link = document.getElementById("notificationLink");
+      const linkTextEl = document.getElementById("notificationLinkText");
+      const popup = document.getElementById("notificationPopup");
+      const iconWrapper = document.querySelector(".notification-icon");
+      const iconEl = iconWrapper.querySelector("i");
+
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+
+      if (actionLabel && actionUrl) {
+        linkTextEl.textContent = actionLabel;
+        link.href = actionUrl;
+        linkContainer.style.display = "block";
+      } else {
+        linkContainer.style.display = "none";
+      }
+
+      iconWrapper.style.background =
+        "linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)";
+      iconEl.className = "fas fa-info-circle";
+
+      if (type === "success") {
+        iconWrapper.style.background =
+          "linear-gradient(135deg, var(--success) 0%, #059669 100%)";
+        iconEl.className = "fas fa-check-circle";
+      } else if (type === "error") {
+        iconWrapper.style.background =
+          "linear-gradient(135deg, var(--danger) 0%, #b91c1c 100%)";
+        iconEl.className = "fas fa-times-circle";
+      } else if (type === "warning") {
+        iconWrapper.style.background =
+          "linear-gradient(135deg, var(--warning) 0%, #d97706 100%)";
+        iconEl.className = "fas fa-exclamation-triangle";
+      } else {
+        iconWrapper.style.background =
+          "linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)";
+        iconEl.className = "fas fa-info-circle";
+      }
+
+      popup.classList.add("active");
+
+      if (!actionLabel && !actionUrl) {
+        setTimeout(closeNotification, 6000);
+      }
+    }
+
+    function closeNotification() {
+      document.getElementById("notificationPopup").classList.remove("active");
+    }
+
+    // ==================== SEARCH FUNCTIONALITY ====================
+    function selectSearchDatasource(datasourceId) {
+      searchFilter = datasourceId;
+
+      const searchInput = document.getElementById("datasourceSearch");
+      const searchDropdown = document.getElementById("searchDropdown");
+
+      if (datasourceId === null) {
+        searchInput.value = "All Datasources";
+      } else {
+        const datasource = datasources.find(
+          (ds) => ds.datasource_id === datasourceId,
+        );
+        if (datasource) {
+          searchInput.value = datasource.name;
+        }
+      }
+
+      searchDropdown.classList.remove("show");
+      renderDatasources();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      document
+        .getElementById("notificationPopup")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeNotification();
+        });
+
+      const searchInput = document.getElementById("datasourceSearch");
+      const searchDropdown = document.getElementById("searchDropdown");
+
+      if (searchInput && searchDropdown) {
+        searchInput.addEventListener("input", function () {
+          const searchTerm = this.value.toLowerCase().trim();
+
+          if (!searchTerm) {
+            searchDropdown.classList.remove("show");
+            searchFilter = null;
+            renderDatasources();
+            return;
+          }
+
+          const showAllOption =
+            "all".includes(searchTerm) ||
+            "all datasources".includes(searchTerm);
+
+          const filtered = datasources.filter(
+            (ds) =>
+              ds.name.toLowerCase().includes(searchTerm) ||
+              ds.datasource_type.toLowerCase().includes(searchTerm) ||
+              ds.connection_key.toLowerCase().includes(searchTerm),
+          );
+
+          if (!showAllOption && filtered.length === 0) {
+            searchDropdown.innerHTML =
+              '<div style="padding: 10px 12px; color: var(--text-secondary); text-align: center;">No matching datasources found</div>';
+            searchDropdown.classList.add("show");
+            return;
+          }
+
+          let html = "";
+
+          if (showAllOption) {
+            html += `
+							<div class="search-option" onclick="selectSearchDatasource(null)">
+							  <div class="search-option-name">All Datasources</div>
+							  <div class="search-option-code">Show all datasources</div>
+							</div>
+						  `;
+          }
+
+          filtered.forEach((ds) => {
+            html += `
+							<div class="search-option" onclick="selectSearchDatasource(${ds.datasource_id})">
+							  <div class="search-option-name">${escapeHtml(ds.name)}</div>
+							  <div class="search-option-code">Type: ${escapeHtml(ds.datasource_type)}</div>
+							</div>
+						  `;
+          });
+
+          searchDropdown.innerHTML = html;
+          searchDropdown.classList.add("show");
+        });
+
+        document.addEventListener("click", function (e) {
+          if (
+            !searchInput.contains(e.target) &&
+            !searchDropdown.contains(e.target)
+          ) {
+            searchDropdown.classList.remove("show");
+          }
+        });
+      }
+    });
+
+    // ==================== CUSTOM SELECT HANDLER ====================
+    function toggleCustomSelect(id) {
+      const trigger = document.getElementById(id + "Trigger");
+      const options = document.getElementById(id + "Options");
+
+      // Close other dropdowns
+      document
+        .querySelectorAll(".custom-select-options.active")
+        .forEach((opt) => {
+          if (opt.id !== id + "Options") {
+            opt.classList.remove("active");
+            document
+              .getElementById(opt.id.replace("Options", "Trigger"))
+              .classList.remove("active");
+          }
+        });
+
+      trigger.classList.toggle("active");
+      options.classList.toggle("active");
+    }
+
+    // Initialize custom select options
+    document.addEventListener("DOMContentLoaded", function () {
+      // Handle datasourceType options
+      const typeOptions = document.getElementById("datasourceTypeOptions");
+      if (typeOptions) {
+        typeOptions
+          .querySelectorAll(".custom-select-option")
+          .forEach((option) => {
+            option.addEventListener("click", function (e) {
+              e.stopPropagation();
+              selectOption("datasourceType", this);
+            });
+          });
+      }
+
+      // Handle configProtocol options
+      const protocolOptions = document.getElementById(
+        "configProtocolOptions",
+      );
+      if (protocolOptions) {
+        protocolOptions
+          .querySelectorAll(".custom-select-option")
+          .forEach((option) => {
+            option.addEventListener("click", function (e) {
+              e.stopPropagation();
+              selectOption("configProtocol", this);
+            });
+          });
+      }
+
+      // Handle configAuthType options
+      const authTypeOptions = document.getElementById(
+        "configAuthTypeOptions",
+      );
+      if (authTypeOptions) {
+        authTypeOptions
+          .querySelectorAll(".custom-select-option")
+          .forEach((option) => {
+            option.addEventListener("click", function (e) {
+              e.stopPropagation();
+              selectOption("configAuthType", this);
+            });
+          });
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".custom-select-wrapper")) {
+          document
+            .querySelectorAll(".custom-select-options.active")
+            .forEach((options) => {
+              options.classList.remove("active");
+              const triggerId = options.id.replace("Options", "Trigger");
+              document.getElementById(triggerId).classList.remove("active");
+            });
+        }
+      });
+
+      loadData();
+    });
+
+    function selectOption(id, optionElement) {
+      const value = optionElement.getAttribute("data-value");
+      const text = optionElement.textContent;
+      const trigger = document.getElementById(id + "Trigger");
+      const hiddenInput = document.getElementById(id);
+      const optionsContainer = document.getElementById(id + "Options");
+
+      trigger.textContent = text;
+      trigger.classList.remove("placeholder");
+      hiddenInput.value = value;
+
+      // Remove selected class from all options
+      optionsContainer
+        .querySelectorAll(".custom-select-option")
+        .forEach((opt) => opt.classList.remove("selected"));
+      // Add selected class to clicked option
+      optionElement.classList.add("selected");
+
+      // Close dropdown
+      trigger.classList.remove("active");
+      optionsContainer.classList.remove("active");
+    }
+
+    // ==================== DATA LOADING ====================
+    async function loadData() {
+      try {
+        document.getElementById("loadingState").style.display = "block";
+        document.getElementById("datasourcesContainer").innerHTML = "";
+        document.getElementById("emptyState").style.display = "none";
+
+        const res = await fetch(`${API}/datasources`, {
+          headers: { "X-Tenant-ID": tenantId },
+        });
+        datasources = await res.json();
+
+        document.getElementById("loadingState").style.display = "none";
+
+        renderDatasources();
+      } catch (err) {
+        console.error("Failed to load datasources:", err);
+        document.getElementById("loadingState").innerHTML =
+          '<i class="fas fa-exclamation-circle"></i><div class="loading-text">Failed to load datasources</div>';
+      }
+    }
+
+    function updateStatsBadge(count) {
+      const badge = document.getElementById("statsBadge");
+      badge.textContent = `${count} ${count === 1 ? "datasource" : "datasources"}`;
+    }
+
+    function renderDatasources() {
+      let displayDatasources = datasources;
+
+      if (searchFilter !== null && searchFilter !== undefined) {
+        displayDatasources = datasources.filter(
+          (ds) => ds.datasource_id === searchFilter,
+        );
+      }
+
+      updateStatsBadge(displayDatasources.length);
+
+      if (!displayDatasources.length) {
+        document.getElementById("emptyState").style.display = "block";
+        document.getElementById("datasourcesContainer").innerHTML = "";
+        return;
+      }
+
+      document.getElementById("emptyState").style.display = "none";
+
+      const container = document.getElementById("datasourcesContainer");
+      container.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Connection Key</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${displayDatasources
+          .map(
+            (ds) => `
+          <tr onclick="toggleExpandDatasource(${ds.datasource_id}, event)">
+            <td style="text-align:center;">
+              <div class="datasource-name" style="justify-content:center;">
+                <i class="fas fa-database" style="color: var(--secondary); font-size: 0.9rem;"></i>
+                ${escapeHtml(ds.name)}
+              </div>
+            </td>
+
+            <td style="text-align:center;">
+              <span class="type-badge">
+                <i class="fas fa-server"></i>
+                ${escapeHtml(ds.datasource_type)}
+              </span>
+            </td>
+
+            <td style="text-align:center;">
+              ${escapeHtml(ds.connection_key)}
+            </td>
+
+            <td style="text-align:center;">
+              <span class="status-badge ${ds.is_active ? "status-active" : "status-inactive"}">
+                ${ds.is_active ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>'}
+                ${ds.is_active ? "Active" : "Inactive"}
+              </span>
+            </td>
+
+            <td style="text-align:center;">
+              <div class="actions">
+                <button class="action-btn" onclick="showDetails(${ds.datasource_id})" title="Details">
+                  <i class="fas fa-info-circle"></i> Details
+                </button>
+                <button class="action-btn" onclick="editDatasource(${ds.datasource_id})" title="Edit">
+                  <i class="fas fa-pen"></i> Edit
+                </button>
+                <button class="action-btn delete" onclick="promptDelete(${ds.datasource_id})" title="Delete">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="expanded-row" id="expanded-ds-${ds.datasource_id}">
+            <td colspan="5">
+              <div class="expanded-content">
+                <div class="expanded-grid">
+
+                  <div class="expanded-field">
+                    <div class="expanded-field-label">Datasource ID</div>
+                    <div class="expanded-field-value">${formatFieldValue(ds.datasource_id)}</div>
+                  </div>
+
+                  <div class="expanded-field">
+                    <div class="expanded-field-label">Name</div>
+                    <div class="expanded-field-value">${formatFieldValue(ds.name)}</div>
+                  </div>
+
+                  <div class="expanded-field">
+                    <div class="expanded-field-label">Type</div>
+                    <div class="expanded-field-value">${formatFieldValue(ds.datasource_type)}</div>
+                  </div>
+
+                  <div class="expanded-field">
+                    <div class="expanded-field-label">Connection Key</div>
+                    <div class="expanded-field-value">${formatFieldValue(ds.connection_key)}</div>
+                  </div>
+
+                  <div class="expanded-field">
+                    <div class="expanded-field-label">Description</div>
+                    <div class="expanded-field-value">${formatFieldValue(ds.description)}</div>
+                  </div>
+
+                  <div class="expanded-field">
+                    <div class="expanded-field-label">Is Active</div>
+                    <div class="expanded-field-value">${formatFieldValue(ds.is_active)}</div>
+                  </div>
+
+                </div>
+              </div>
+            </td>
+          </tr>
+        `,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+    }
+
+    // ==================== MODAL FUNCTIONS ====================
+    function toggleActive() {
+      const toggle = document.getElementById("datasourceIsActive");
+      const label = document.getElementById("activeLabel");
+      toggle.classList.toggle("active");
+      label.textContent = toggle.classList.contains("active")
+        ? "Active"
+        : "Inactive";
+    }
+
+    function openModal() {
+      document.getElementById("modalTitleText").textContent =
+        "Add Datasource";
+      document.getElementById("datasourceId").value = "";
+      document.getElementById("datasourceName").value = "";
+      document.getElementById("datasourceType").value = "";
+      document.getElementById("datasourceTypeTrigger").textContent =
+        "Select type...";
+      document
+        .getElementById("datasourceTypeTrigger")
+        .classList.add("placeholder");
+      document.getElementById("datasourceConnectionKey").value = "";
+      document.getElementById("datasourceDescription").value = "";
+
+      // Remove selected class from all type options
+      document
+        .querySelectorAll("#datasourceTypeOptions .custom-select-option")
+        .forEach((opt) => opt.classList.remove("selected"));
+
+      const toggle = document.getElementById("datasourceIsActive");
+      const label = document.getElementById("activeLabel");
+      toggle.classList.add("active");
+      label.textContent = "Active";
+
+      document.getElementById("modalOverlay").classList.add("active");
+
+      setTimeout(() => {
+        const modalBody = document.querySelector("#modalOverlay .modal-body");
+        if (modalBody) modalBody.scrollTop = 0;
+      }, 0);
+    }
+
+    function closeModal() {
+      document.getElementById("modalOverlay").classList.remove("active");
+      // Close any open dropdowns
+      document
+        .querySelectorAll(".custom-select-options.active")
+        .forEach((opt) => opt.classList.remove("active"));
+      document
+        .querySelectorAll(".custom-select-trigger.active")
+        .forEach((trigger) => trigger.classList.remove("active"));
+    }
+
+    async function showDetails(id) {
+      currentDatasource = datasources.find((d) => d.datasource_id === id);
+      if (!currentDatasource) {
+        showNotification(
+          "error",
+          "Datasource Not Found",
+          "The requested datasource could not be found. Please refresh the page and try again.",
+        );
+        return;
+      }
+
+      document.getElementById("detailName").textContent =
+        currentDatasource.name;
+      document.getElementById("detailType").textContent =
+        currentDatasource.datasource_type;
+      document.getElementById("detailConnectionKey").textContent =
+        currentDatasource.connection_key;
+      document.getElementById("detailStatus").textContent =
+        currentDatasource.is_active ? "Active" : "Inactive";
+
+      if (currentDatasource.description) {
+        document.getElementById("detailDescription").textContent =
+          currentDatasource.description;
+        document.getElementById("detailDescContainer").style.display =
+          "block";
+      } else {
+        document.getElementById("detailDescContainer").style.display = "none";
+      }
+
+      // Check if THIS SPECIFIC datasource has a config by matching connection_key with config name
+      try {
+        // Fetch the specific config for THIS datasource's connection_key
+        const configRes = await fetch(
+          `${API}/datasource-configs/by-name/${encodeURIComponent(currentDatasource.connection_key)}`,
+          {
+            headers: { "X-Tenant-ID": tenantId },
+          },
+        );
+
+        if (configRes.ok) {
+          const matchingConfig = await configRes.json();
+          currentDatasource.existingConfig = matchingConfig;
+          document.getElementById("configActionIcon").className =
+            "fas fa-edit";
+          document.getElementById("configActionText").textContent =
+            "Edit Configuration";
+        } else {
+          currentDatasource.existingConfig = null;
+          document.getElementById("configActionIcon").className =
+            "fas fa-cog";
+          document.getElementById("configActionText").textContent =
+            "Add Configuration";
+        }
+      } catch (err) {
+        console.error("Error checking config:", err);
+        currentDatasource.existingConfig = null;
+        document.getElementById("configActionIcon").className = "fas fa-cog";
+        document.getElementById("configActionText").textContent =
+          "Add Configuration";
+      }
+
+      document.getElementById("detailsOverlay").classList.add("active");
+    }
+
+    function closeDetailsModal() {
+      document.getElementById("detailsOverlay").classList.remove("active");
+    }
+
+    function handleConfigAction() {
+      if (currentDatasource.existingConfig) {
+        editConfigFromDatasource(currentDatasource.existingConfig);
+      } else {
+        addConfiguration();
+      }
+    }
+
+    function editConfigFromDatasource(config) {
+      closeDetailsModal();
+      document.getElementById("configDatasource").value =
+        currentDatasource.name;
+      document.getElementById("configName").value = config.name;
+      document.getElementById("configName").disabled = true;
+
+      // Set Protocol
+      const protocolValue = config.protocol || "";
+      document.getElementById("configProtocol").value = protocolValue;
+      const protocolOptions = document.getElementById(
+        "configProtocolOptions",
+      );
+      const selectedProtocol = Array.from(
+        protocolOptions.querySelectorAll(".custom-select-option"),
+      ).find((opt) => opt.getAttribute("data-value") === protocolValue);
+      if (selectedProtocol) {
+        document.getElementById("configProtocolTrigger").textContent =
+          selectedProtocol.textContent;
+        document
+          .getElementById("configProtocolTrigger")
+          .classList.remove("placeholder");
+        protocolOptions
+          .querySelectorAll(".custom-select-option")
+          .forEach((opt) => opt.classList.remove("selected"));
+        selectedProtocol.classList.add("selected");
+      }
+
+      document.getElementById("configDriver").value =
+        config.driver_family || "";
+      document.getElementById("configBaseUrl").value = config.base_url || "";
+
+      // Set Auth Type
+      const authTypeValue = config.auth_type || "";
+      document.getElementById("configAuthType").value = authTypeValue;
+      const authTypeOptions = document.getElementById(
+        "configAuthTypeOptions",
+      );
+      const selectedAuthType = Array.from(
+        authTypeOptions.querySelectorAll(".custom-select-option"),
+      ).find((opt) => opt.getAttribute("data-value") === authTypeValue);
+      if (selectedAuthType) {
+        document.getElementById("configAuthTypeTrigger").textContent =
+          selectedAuthType.textContent;
+        document
+          .getElementById("configAuthTypeTrigger")
+          .classList.remove("placeholder");
+        authTypeOptions
+          .querySelectorAll(".custom-select-option")
+          .forEach((opt) => opt.classList.remove("selected"));
+        selectedAuthType.classList.add("selected");
+      }
+
+      document.getElementById("configAuthConfig").value = config.auth_config
+        ? JSON.stringify(config.auth_config, null, 2)
+        : "";
+      document.getElementById("configConnectionJson").value =
+        config.connection_json
+          ? JSON.stringify(config.connection_json, null, 2)
+          : "";
+      document.getElementById("configMetadataRef").value =
+        config.metadata_ref || "";
+      document.getElementById("configRouterBaseUrl").value =
+        config.router_base_url || "";
+
+      const toggle = document.getElementById("configIsActive");
+      const label = document.getElementById("configActiveLabel");
+      if (config.is_active) {
+        toggle.classList.add("active");
+        label.textContent = "Active";
+      } else {
+        toggle.classList.remove("active");
+        label.textContent = "Inactive";
+      }
+
+      document.getElementById("configFormOverlay").dataset.configId =
+        config.config_id;
+      document.getElementById("configFormOverlay").dataset.isEdit = "true";
+
+      document.getElementById("configFormOverlay").classList.add("active");
+    }
+
+    function addConfiguration() {
+      closeDetailsModal();
+      document.getElementById("configDatasource").value =
+        currentDatasource.name;
+      document.getElementById("configName").value =
+        currentDatasource.connection_key;
+      document.getElementById("configName").disabled = true;
+
+      // Reset Protocol
+      document.getElementById("configProtocol").value = "";
+      document.getElementById("configProtocolTrigger").textContent =
+        "Select protocol...";
+      document
+        .getElementById("configProtocolTrigger")
+        .classList.add("placeholder");
+      document
+        .getElementById("configProtocolOptions")
+        .querySelectorAll(".custom-select-option")
+        .forEach((opt) => opt.classList.remove("selected"));
+
+      document.getElementById("configDriver").value =
+        currentDatasource.datasource_type;
+      document.getElementById("configBaseUrl").value = "";
+
+      // Reset Auth Type
+      document.getElementById("configAuthType").value = "";
+      document.getElementById("configAuthTypeTrigger").textContent =
+        "Select auth type...";
+      document
+        .getElementById("configAuthTypeTrigger")
+        .classList.add("placeholder");
+      document
+        .getElementById("configAuthTypeOptions")
+        .querySelectorAll(".custom-select-option")
+        .forEach((opt) => opt.classList.remove("selected"));
+
+      document.getElementById("configAuthConfig").value = "";
+      document.getElementById("configConnectionJson").value = "";
+      document.getElementById("configMetadataRef").value = "";
+      document.getElementById("configRouterBaseUrl").value = "";
+
+      const toggle = document.getElementById("configIsActive");
+      const label = document.getElementById("configActiveLabel");
+      toggle.classList.add("active");
+      label.textContent = "Active";
+
+      delete document.getElementById("configFormOverlay").dataset.configId;
+      delete document.getElementById("configFormOverlay").dataset.isEdit;
+
+      document.getElementById("configFormOverlay").classList.add("active");
+    }
+
+    function closeConfigForm() {
+      document.getElementById("configFormOverlay").classList.remove("active");
+    }
+
+    function toggleConfigActive() {
+      const toggle = document.getElementById("configIsActive");
+      const label = document.getElementById("configActiveLabel");
+      toggle.classList.toggle("active");
+      label.textContent = toggle.classList.contains("active")
+        ? "Active"
+        : "Inactive";
+    }
+
+    function editDatasource(id) {
+      const ds = datasources.find((d) => d.datasource_id === id);
+      if (!ds) {
+        showNotification(
+          "error",
+          "Datasource Not Found",
+          "The requested datasource could not be found. Please refresh the page and try again.",
+        );
+        return;
+      }
+
+      document.getElementById("modalTitleText").textContent =
+        "Edit Datasource";
+      document.getElementById("datasourceId").value = ds.datasource_id;
+      document.getElementById("datasourceName").value = ds.name || "";
+
+      // Set custom dropdown value
+      const typeValue = ds.datasource_type || "";
+      document.getElementById("datasourceType").value = typeValue;
+      const typeOptions = document.getElementById("datasourceTypeOptions");
+      const selectedOption = Array.from(
+        typeOptions.querySelectorAll(".custom-select-option"),
+      ).find((opt) => opt.getAttribute("data-value") === typeValue);
+      if (selectedOption) {
+        document.getElementById("datasourceTypeTrigger").textContent =
+          selectedOption.textContent;
+        document
+          .getElementById("datasourceTypeTrigger")
+          .classList.remove("placeholder");
+        typeOptions
+          .querySelectorAll(".custom-select-option")
+          .forEach((opt) => opt.classList.remove("selected"));
+        selectedOption.classList.add("selected");
+      }
+
+      document.getElementById("datasourceConnectionKey").value =
+        ds.connection_key || "";
+      document.getElementById("datasourceDescription").value =
+        ds.description || "";
+
+      const toggle = document.getElementById("datasourceIsActive");
+      const label = document.getElementById("activeLabel");
+      if (ds.is_active) {
+        toggle.classList.add("active");
+        label.textContent = "Active";
+      } else {
+        toggle.classList.remove("active");
+        label.textContent = "Inactive";
+      }
+
+      document.getElementById("modalOverlay").classList.add("active");
+
+      setTimeout(() => {
+        const modalBody = document.querySelector("#modalOverlay .modal-body");
+        if (modalBody) modalBody.scrollTop = 0;
+      }, 0);
+    }
+
+    // ==================== SAVE FUNCTIONS ====================
+    async function saveDatasource() {
+      const id = document.getElementById("datasourceId").value;
+      const toggle = document.getElementById("datasourceIsActive");
+
+      const payload = {
+        name: document.getElementById("datasourceName").value.trim(),
+        datasource_type: document
+          .getElementById("datasourceType")
+          .value.trim(),
+        connection_key: document
+          .getElementById("datasourceConnectionKey")
+          .value.trim(),
+        description:
+          document.getElementById("datasourceDescription").value.trim() ||
+          null,
+        is_active: toggle.classList.contains("active"),
+      };
+      if (
+        !payload.name ||
+        !payload.datasource_type ||
+        !payload.connection_key
+      ) {
+        showNotification(
+          "warning",
+          "Required Fields Missing",
+          "Name, Type, and Connection Key are all required fields. Please fill them in to continue.",
+        );
+        return;
+      }
+
+      // Check for unique connection_key
+      const existingDatasource = datasources.find(
+        (ds) =>
+          ds.connection_key === payload.connection_key &&
+          ds.datasource_id !== parseInt(id || 0),
+      );
+
+      if (existingDatasource) {
+        showNotification(
+          "warning",
+          "Duplicate Connection Key",
+          `Connection Key "${payload.connection_key}" is already used by datasource "${existingDatasource.name}". Please use a unique Connection Key.`,
+        );
+        return;
+      }
+
+      const method = id ? "PUT" : "POST";
+      const url = id ? `${API}/datasources/${id}` : `${API}/datasources`;
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Tenant-ID": tenantId,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const err = await res
+            .json()
+            .catch(() => ({ detail: "Server error" }));
+          showNotification(
+            "error",
+            "Failed to Save Datasource",
+            err.detail ||
+            "An error occurred while saving the datasource. Please try again.",
+          );
+          return;
+        }
+
+        closeModal();
+        showNotification(
+          "success",
+          "Success!",
+          `Datasource has been ${id ? "updated" : "created"} successfully.`,
+        );
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        console.error("Save failed:", err);
+        showNotification(
+          "error",
+          "Save Failed",
+          err.message || "Failed to save the datasource. Please try again.",
+        );
+      }
+    }
+
+    async function saveConfig() {
+      let authConfig = null;
+      let connectionJson = null;
+
+      try {
+        const authConfigStr = document
+          .getElementById("configAuthConfig")
+          .value.trim();
+        if (authConfigStr) authConfig = JSON.parse(authConfigStr);
+
+        const connectionJsonStr = document
+          .getElementById("configConnectionJson")
+          .value.trim();
+        if (connectionJsonStr) connectionJson = JSON.parse(connectionJsonStr);
+      } catch (e) {
+        showNotification(
+          "error",
+          "Invalid JSON",
+          "The JSON you entered in Auth Config or Connection JSON is not valid. Please check the syntax and try again.",
+        );
+        return;
+      }
+
+      const payload = {
+        tenant_id: tenantId,
+        name: document.getElementById("configName").value.trim(),
+        protocol: document.getElementById("configProtocol").value.trim(),
+        driver_family: document.getElementById("configDriver").value.trim(),
+        base_url:
+          document.getElementById("configBaseUrl").value.trim() || null,
+        auth_type:
+          document.getElementById("configAuthType").value.trim() || null,
+        auth_config: authConfig,
+        connection_json: connectionJson,
+        metadata_ref:
+          document.getElementById("configMetadataRef").value.trim() || null,
+        router_base_url:
+          document.getElementById("configRouterBaseUrl").value.trim() || null,
+        is_active: document
+          .getElementById("configIsActive")
+          .classList.contains("active"),
+      };
+
+      if (!payload.name || !payload.protocol || !payload.driver_family) {
+        showNotification(
+          "warning",
+          "Required Fields Missing",
+          "Name, Protocol, and Driver Family are all required fields for datasource configuration.",
+        );
+        return;
+      }
+
+      const formOverlay = document.getElementById("configFormOverlay");
+      const isEdit = formOverlay.dataset.isEdit === "true";
+      const configId = formOverlay.dataset.configId;
+
+      const method = isEdit ? "PUT" : "POST";
+      const url = isEdit
+        ? `${API}/datasource-configs/${configId}`
+        : `${API}/datasource-configs`;
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Tenant-ID": tenantId,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const err = await res
+            .json()
+            .catch(() => ({ detail: "Server error" }));
+          showNotification(
+            "error",
+            "Failed to Save Configuration",
+            err.detail ||
+            "An error occurred while saving the datasource configuration. Please try again.",
+          );
+          return;
+        }
+
+        showNotification(
+          "success",
+          "Configuration Saved Successfully",
+          `The configuration has been ${isEdit ? "updated" : "created"} successfully.`,
+          "View Configs",
+          "datasource-configs.html",
+        );
+        closeConfigForm();
+        setTimeout(() => location.reload(), 2000);
+      } catch (err) {
+        console.error("Save failed:", err);
+        showNotification(
+          "error",
+          "Save Failed",
+          err.message ||
+          "Failed to save the datasource configuration. Please try again.",
+        );
+      }
+    }
+
+    // ==================== DELETE FUNCTIONS ====================
+    function promptDelete(id) {
+      document.getElementById("deleteDatasourceId").value = id;
+      document.getElementById("deleteOverlay").classList.add("active");
+    }
+
+    function closeDeleteModal() {
+      document.getElementById("deleteOverlay").classList.remove("active");
+    }
+
+    async function confirmDelete() {
+      const id = document.getElementById("deleteDatasourceId").value;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`${API}/datasources/${id}`, {
+          method: "DELETE",
+          headers: { "X-Tenant-ID": tenantId },
+        });
+
+        if (!res.ok) {
+          const errorData = await res
+            .json()
+            .catch(() => ({ detail: "Unknown error" }));
+          closeDeleteModal();
+
+          showNotification(
+            res.status === 400 ? "warning" : "error",
+            "Failed to Delete",
+            errorData.detail || "Unknown error",
+            res.status === 400 ? "Go to Validation Rules" : null,
+            res.status === 400 ? "rules.html" : null,
+          );
+          return;
+        }
+
+        closeDeleteModal();
+        showNotification(
+          "success",
+          "Datasource Deleted",
+          "The datasource has been deleted successfully.",
+        );
+
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        closeDeleteModal();
+        showNotification(
+          "error",
+          "Delete Failed",
+          "Failed to delete the datasource. Please try again.",
+        );
+      }
+    }
+
+    // ==================== UTILITY FUNCTIONS ====================
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str).replace(
+        /[&<>"']/g,
+        (m) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          })[m],
+      );
+    }
+    function toggleExpandDatasource(id, event) {
+      // Prevent action buttons from triggering expand
+      if (
+        event &&
+        (event.target.closest(".action-btn") ||
+          event.target.closest(".actions"))
+      ) {
+        return;
+      }
+
+      const row = document.getElementById(`expanded-ds-${id}`);
+      if (row) {
+        row.classList.toggle("show");
+      }
+    }
+
+    function formatFieldValue(value) {
+      if (value === null || value === undefined || value === "") {
+        return '<span class="null-value">Not set</span>';
+      }
+      if (typeof value === "boolean") {
+        return value ? "Yes" : "No";
+      }
+      return escapeHtml(String(value));
+    }
+  </script>
+  <script src="responsive.js"></script>
+</body>
+
+</html>

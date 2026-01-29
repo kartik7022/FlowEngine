@@ -1,0 +1,2910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — FlowEngine</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%233B82F6' d='M466.5 83.7l-192-80a48.15 48.15 0 0 0-36.9 0l-192 80C27.7 91.1 16 108.6 16 128c0 198.5 114.5 335.7 221.5 380.3 11.8 4.9 25.1 4.9 36.9 0C360.1 472.6 496 349.3 496 128c0-19.4-11.7-36.9-29.5-44.3zM256.1 446.3l-.1-381 175.9 73.3c-3.3 151.4-82.1 261.1-175.8 307.7z'/></svg>">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary:#0F172A;
+      --primary-light:#1E293B;
+      --secondary:#3B82F6;
+      --secondary-dark:#2563EB;
+      --accent:#8B5CF6;
+
+      --success:#10B981;
+      --danger:#EF4444;
+      --warning:#F59E0B;
+
+      --bg:#F8FAFC;
+      --bg-secondary:#FFFFFF;
+      --border:#E2E8F0;
+      --border-light:#F1F5F9;
+
+      --text-primary:#0F172A;
+      --text-secondary:#64748B;
+      --text-tertiary:#94A3B8;
+
+      --radius:10px;
+      --radius-lg:14px;
+
+      --shadow-xs:0 1px 2px rgba(15,23,42,0.04);
+      --shadow-sm:0 2px 8px rgba(15,23,42,0.06);
+      --shadow-md:0 4px 16px rgba(15,23,42,0.08);
+      --shadow-lg:0 8px 24px rgba(15,23,42,0.12);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      background: var(--primary);
+      padding: 32px 24px;
+      position: fixed;
+      left: 0; top: 0;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      display: flex;
+      align-items:center;
+      gap: 14px;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo i {
+      font-size: 1.6rem;
+      color: var(--secondary);
+      background: rgba(59,130,246,0.15);
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .nav-menu { list-style:none; display: flex; flex-direction: column; gap: 4px; }
+
+    .nav-link {
+      display:flex; 
+      align-items:center;
+      gap:14px;
+      padding:14px 16px;
+      text-decoration:none;
+      color:rgba(255,255,255,0.7);
+      border-radius:var(--radius);
+      font-size:0.94rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .nav-link i {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .nav-link:hover { 
+      background:rgba(255,255,255,0.08); 
+      color:white;
+      transform: translateX(2px);
+    }
+    
+    .nav-link.active { 
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+      color:white; 
+      font-weight:600;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    }
+
+    .main-content {
+      margin-left: 260px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--bg-secondary);
+      padding: 24px 40px;
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-title i {
+      font-size: 1.5rem;
+      color: var(--secondary);
+      background: rgba(59,130,246,0.1);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+    }
+
+    .docs-link {
+      padding: 11px 20px;
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+      color: white;
+      border-radius: var(--radius);
+      font-size: 0.94rem;
+      font-weight: 600;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      border:none;
+      cursor:pointer;
+      box-shadow: 0 2px 8px rgba(59,130,246,0.25);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .docs-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59,130,246,0.35);
+    }
+
+    .content-area { 
+      padding: 24px 32px;
+      max-width: 1600px;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+      max-width: 900px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-xs);
+      padding: 16px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      grid-column: span 2;
+    }
+
+    .stat-card:nth-child(4) {
+      grid-column: 2 / 4;
+    }
+
+    .stat-card:nth-child(5) {
+      grid-column: 4 / 6;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-2px);
+      border-color: var(--secondary);
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(59,130,246,0.1);
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-top: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    /* SECTION HEADER */
+    .section-header {
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: var(--secondary);
+      font-size: 1.05rem;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+      margin: 28px 0 24px 0;
+    }
+
+    .category-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .category-label::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: var(--secondary);
+      border-radius: 50%;
+    }
+
+    /* MODULES GRID */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+      max-width: 1200px;
+    }
+
+    .module-card {
+      background: white;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      grid-column: span 2;
+    }
+
+    .module-card:nth-child(4) {
+      grid-column: 2 / 4;
+    }
+
+    .module-card:nth-child(5) {
+      grid-column: 4 / 6;
+    }
+
+    .module-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: var(--secondary);
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .module-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+      flex-shrink: 0;
+    }
+
+    .module-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .module-description {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .module-footer {
+      border-top: 1px solid var(--border-light);
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+    }
+
+    .module-count {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .module-link {
+      color: var(--secondary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .module-card:hover .module-link {
+      gap: 10px;
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions {
+      background: white;
+      padding: 18px 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xs);
+      max-width: 1200px;
+    }
+
+    .quick-actions h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quick-actions h3 i {
+      color: var(--secondary);
+      font-size: 0.95rem;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+
+    .action-btn {
+      padding: 11px 14px;
+      text-decoration: none;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      color: var(--text-primary);
+      cursor: pointer;
+      grid-column: span 2;
+    }
+
+    .action-btn:nth-child(4) {
+      grid-column: 2 / 4;
+    }
+
+    .action-btn:nth-child(5) {
+      grid-column: 4 / 6;
+    }
+
+    .action-btn:hover {
+      border-color: var(--secondary);
+      background: rgba(59,130,246,0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(59,130,246,0.15);
+    }
+
+    .action-btn i {
+      color: var(--secondary);
+      font-size: 0.9rem;
+    }
+
+    .loading {
+      padding:60px;
+      text-align:center;
+      color:var(--text-secondary);
+    }
+
+    .loading i {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      color: var(--secondary);
+    }
+
+    .loading-text {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* STANDARDIZED MODAL STYLES */
+    .modal {
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,0.6);
+      backdrop-filter: blur(4px);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      z-index:1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal.active { display:flex; }
+
+   .modal-content {
+  background: white;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 560px;  /* unified width for ALL modals */
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 2px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, #FAFBFC 0%, #FFFFFF 100%);
+      flex-shrink: 0;
+    }
+
+    .modal-header h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header h3 i {
+      width: 40px;
+      height: 40px;
+      background: rgba(59,130,246,0.1);
+      color: var(--secondary);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text-secondary);
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      background: var(--bg-secondary);
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+      background: white;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.6;
+    }
+
+    .form-select {
+      cursor: pointer;
+    }
+
+    /* CUSTOM DROPDOWN */
+    .custom-select-wrapper { position: relative; width: 100%; }
+    .custom-select-trigger {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      user-select: none;
+      position: relative;
+    }
+    .custom-select-trigger.placeholder { color: var(--text-tertiary); }
+    .custom-select-trigger:hover { border-color: var(--secondary); }
+    .custom-select-trigger.active { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background: white; }
+    .custom-select-trigger::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      transition: transform 0.2s ease;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .custom-select-trigger.active::after { transform: rotate(180deg); }
+    .custom-select-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(15,23,42,0.15);
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+    .custom-select-options.active { display: block; }
+    .custom-select-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s ease;
+      color: var(--text-primary);
+    }
+    .custom-select-option:hover { background: var(--bg); }
+    .custom-select-option.selected { background: rgba(59,130,246,0.1); color: var(--secondary); font-weight: 600; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .typeahead-container {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .typeahead-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      background: var(--bg-secondary);
+    }
+
+    .typeahead-input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+      background: white;
+    }
+
+    .typeahead-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      display: none;
+      margin-top: -1px;
+    }
+
+    .typeahead-dropdown.active {
+      display: block;
+    }
+
+    .typeahead-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--border-light);
+      font-weight: 500;
+    }
+
+    .typeahead-item:last-child {
+      border-bottom: none;
+    }
+
+    .typeahead-item:hover {
+      background: var(--bg);
+      color: var(--secondary);
+    }
+
+    .typeahead-item.highlighted {
+      background: rgba(59,130,246,0.1);
+      color: var(--secondary);
+    }
+
+    .alert-message {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .checkbox-group { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      padding: 12px; 
+      background: var(--bg); 
+      border-radius: var(--radius); 
+      border: 1px solid var(--border-light); 
+    }
+    
+    .checkbox-group input[type="checkbox"] { 
+      width: 18px; 
+      height: 18px; 
+      cursor: pointer; 
+      accent-color: var(--secondary);
+    }
+    
+    .checkbox-group label { 
+      font-size: 0.9rem; 
+      font-weight: 500; 
+      color: var(--text-primary); 
+      cursor: pointer; 
+      user-select: none; 
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 0;
+    }
+
+    .toggle {
+      width: 52px;
+      height: 28px;
+      background: #CBD5E1;
+      border-radius: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .toggle.active {
+      background: var(--success);
+    }
+
+    .toggle::after {
+      content: '';
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle.active::after {
+      transform: translateX(24px);
+    }
+
+    .toggle-label {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 2px solid var(--border-light);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(59,130,246,0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59,130,246,0.35);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+    }
+
+    /* NOTIFICATION POPUP */
+    .notification-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .notification-popup.active {
+      display: flex;
+    }
+
+    .notification-content {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+      max-width: 500px;
+      width: 90%;
+      padding: 0;
+      animation: slideUpBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      display: flex;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes slideUpBounce {
+      0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .notification-icon {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notification-icon i {
+      font-size: 2.5rem;
+      color: white;
+    }
+
+    .notification-body {
+      padding: 28px 20px 28px 0;
+      flex: 1;
+    }
+
+    .notification-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .notification-message {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    .notification-link-container {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .notification-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+    }
+
+    .notification-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+      gap: 12px;
+    }
+
+    .notification-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(15, 23, 42, 0.05);
+      color: var(--text-secondary);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .notification-close:hover {
+      background: var(--danger);
+      color: white;
+      transform: rotate(90deg);
+    }
+    .logout-btn {
+    padding: 11px 20px;
+    background: white;
+    color: var(--danger);
+    border: 1.5px solid var(--danger);
+    border-radius: var(--radius);
+    font-size: 0.94rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .logout-btn:hover {
+    background: var(--danger);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  }
+
+  .logout-btn i {
+    font-size: 1rem;
+  }
+  #cancel:hover{
+		background: var(--danger); color: white; border-color: var(--danger);
+	}
+  
+  </style>
+  <link rel="stylesheet" href="responsive.css">
+
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="fas fa-shield-alt"></i>
+      <span>FlowEngine</span>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="index.html" class="nav-link active"><i class="fas fa-home"></i>Dashboard</a>
+      <a href="datasources.html" class="nav-link"><i class="fas fa-database"></i>Datasources</a>
+      <a href="datasource-configs.html" class="nav-link"><i class="fas fa-cog"></i>Datasource Configs</a>
+      <a href="intents.html" class="nav-link"><i class="fas fa-bullseye"></i>Intents</a>
+      <a href="intent-policies.html" class="nav-link"><i class="fas fa-sliders-h"></i>Intent Policies</a>
+      <a href="rules.html" class="nav-link"><i class="fas fa-check-double"></i>Validation Rules</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <div class="topbar">
+  <h1 class="topbar-title">
+    <i class="fas fa-home"></i>Dashboard
+  </h1>
+
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <a href="/docs" target="_blank" class="docs-link">
+      <i class="fas fa-book-open"></i>API Documentation
+    </a>
+    
+    <button onclick="logout()" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i>Logout
+    </button>
+  </div>
+</div>
+
+    <div class="content-area">
+
+      <!-- STATS GRID -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div>
+              <div class="stat-value" id="datasourcesCount">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <div class="stat-label">Datasources</div>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-database"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <div>
+              <div class="stat-value" id="datasourceConfigsCount">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <div class="stat-label">Datasource Configs</div>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-cog"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <div>
+              <div class="stat-value" id="intentsCount">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <div class="stat-label">Intents</div>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-bullseye"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <div>
+              <div class="stat-value" id="policiesCount">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <div class="stat-label">Intent Policies</div>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-sliders-h"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <div>
+              <div class="stat-value" id="rulesCount">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <div class="stat-label">Validation Rules</div>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-check-double"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- CORE MODULES SECTION -->
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-layer-group"></i>
+          System Architecture
+        </h2>
+      </div>
+
+      <div class="modules-grid">
+
+        <div class="module-card" onclick="location.href='datasources.html'">
+          <div class="module-header">
+            <div class="module-icon"><i class="fas fa-database"></i></div>
+            <div>
+              <h3 class="module-title">Datasources</h3>
+            </div>
+          </div>
+          <p class="module-description">
+            Configure and manage external data connections for validation rules and data retrieval operations.
+          </p>
+          <div class="module-footer">
+            <span class="module-count" id="datasourcesFooter">Loading...</span>
+            <span class="module-link">Explore <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+        <div class="module-card" onclick="location.href='datasource-configs.html'">
+          <div class="module-header">
+            <div class="module-icon"><i class="fas fa-cog"></i></div>
+            <div>
+              <h3 class="module-title">Datasource Configs</h3>
+            </div>
+          </div>
+          <p class="module-description">
+            Define connection configurations, authentication protocols, and metadata for datasource adapters.
+          </p>
+          <div class="module-footer">
+            <span class="module-count" id="datasourceConfigsFooter">Loading...</span>
+            <span class="module-link">Explore <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+        <div class="module-card" onclick="location.href='intents.html'">
+          <div class="module-header">
+            <div class="module-icon"><i class="fas fa-bullseye"></i></div>
+            <div>
+              <h3 class="module-title">Intents</h3>
+            </div>
+          </div>
+          <p class="module-description">
+            Define classification categories and logic pathways for intelligent email validation routing.
+          </p>
+          <div class="module-footer">
+            <span class="module-count" id="intentsFooter">Loading...</span>
+            <span class="module-link">Explore <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+        <div class="module-card" onclick="location.href='intent-policies.html'">
+          <div class="module-header">
+            <div class="module-icon"><i class="fas fa-sliders-h"></i></div>
+            <div>
+              <h3 class="module-title">Intent Policies</h3>
+            </div>
+          </div>
+          <p class="module-description">
+            Configure confidence thresholds and multi-intent handling rules for automated processing workflows.
+          </p>
+          <div class="module-footer">
+            <span class="module-count" id="policiesFooter">Loading...</span>
+            <span class="module-link">Explore <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+        <div class="module-card" onclick="location.href='rules.html'">
+          <div class="module-header">
+            <div class="module-icon"><i class="fas fa-check-double"></i></div>
+            <div>
+              <h3 class="module-title">Validation Rules</h3>
+            </div>
+          </div>
+          <p class="module-description">
+            Configure validation rule logic for automated decision-making and workflow orchestration.
+          </p>
+          <div class="module-footer">
+            <span class="module-count" id="rulesFooter">Loading...</span>
+            <span class="module-link">Explore <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- QUICK ACTIONS SECTION -->
+      <div class="section-header" style="margin-top: 16px;">
+        <h2 class="section-title">
+          <i class="fas fa-rocket"></i>
+          Quick Actions
+        </h2>
+      </div>
+
+      <div class="quick-actions">
+        <div class="actions-grid">
+          <button onclick="openAddDatasourceModal()" class="action-btn">
+            <i class="fas fa-database"></i>Add Datasource
+          </button>
+
+          <button onclick="openAddConfigModal()" class="action-btn">
+            <i class="fas fa-cog"></i>Add Datasource Config
+          </button>
+
+          <button onclick="openAddIntentModal()" class="action-btn">
+            <i class="fas fa-bullseye"></i>Add Intent
+          </button>
+
+          <button onclick="openAddPolicyModal()" class="action-btn">
+            <i class="fas fa-sliders-h"></i>Add Intent Policy
+          </button>
+
+          <button onclick="openAddRuleModal()" class="action-btn">
+            <i class="fas fa-check-double"></i>Create Rule
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ADD INTENT MODAL -->
+  <!-- ADD INTENT MODAL -->
+<div class="modal" id="intentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">
+            <i class="fas fa-bullseye"></i>
+            <span id="modalTitleText">Add Intent</span>
+          </h3>
+          <button class="close-btn" onclick="closeIntentModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="error-message" id="errorMessage" style="display: none;"></div>
+
+          <input type="hidden" id="intentId">
+
+          <div class="form-group">
+            <label class="form-label">Intent Code</label>
+            <input class="form-input" id="intentName" placeholder="e.g., payment_request">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Display Name</label>
+            <input class="form-input" id="intentDisplayName" placeholder="e.g., Payment Request">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description (Optional)</label>
+            <textarea class="form-textarea" id="intentDescription" placeholder="Describe the purpose of this intent..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Category (Optional)</label>
+            <input class="form-input" id="intentCategory" placeholder="e.g., Financial, Support, Operations">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <div class="toggle-container">
+              <div id="intentIsActive" class="toggle active" onclick="toggleIntentActive()"></div>
+              <span class="toggle-label" id="intentActiveLabel">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeIntentModal()" id="cancel">
+              <i class="fas fa-times"></i>
+              Cancel
+            </button>
+            <button class="btn btn-primary" onclick="saveIntent()">
+              <i class="fas fa-check"></i>
+              Save Intent
+            </button>
+        </div>
+    </div>
+</div>
+
+  <!-- ADD POLICY MODAL -->
+  <div class="modal" id="policyModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <i class="fas fa-sliders-h"></i>
+          <span>Add Intent Policy</span>
+        </h3>
+        <button class="close-btn" onclick="closePolicyModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="policyAlertMessage" style="display: none;"></div>
+
+        <div class="form-group">
+          <label class="form-label">Intent *</label>
+          <div class="typeahead-container">
+            <input class="typeahead-input" id="policyIntentSearch" placeholder="Search intent..." autocomplete="off">
+            <div class="typeahead-dropdown" id="policyIntentDropdown"></div>
+          </div>
+          <input type="hidden" id="policyIntent">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Language Code</label>
+          <select class="form-select" id="policyLanguage">
+            <option value="multi">Multi (Default)</option>
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">N8N Orchestration URL (Optional)</label>
+          <input class="form-input" type="url" id="policyN8nUrl" placeholder="https://n8n.example.com/webhook/...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Auto Process Min Confidence (%) *</label>
+          <input class="form-input" type="number" id="policyAutoConf" min="0" max="100" step="0.01" placeholder="e.g., 90.00" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Manual Review Min Confidence (%) *</label>
+          <input class="form-input" type="number" id="policyManualConf" min="0" max="100" step="0.01" placeholder="e.g., 80.00" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reroute Email (Optional)</label>
+          <input class="form-input" type="email" id="policyRerouteEmail" placeholder="example@domain.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Multi-Intent Mode</label>
+          <select class="form-select" id="policyMultiIntentMode">
+            <option value="STRICT_SINGLE">Strict Single</option>
+            <option value="AUTO_ALL">Auto All</option>
+            <option value="AUTO_SUBSET">Auto Subset</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="policyAllowMultiAuto">
+            <label for="policyAllowMultiAuto">Allow Multi Auto</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="policyAllowSubsetAuto">
+            <label for="policyAllowSubsetAuto">Allow Subset Auto</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closePolicyModal()" id="cancel">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button class="btn btn-primary" id="savePolicyBtn" onclick="savePolicy()">
+          <i class="fas fa-check"></i>
+          Save Policy
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD RULE MODAL -->
+  <div class="modal" id="ruleModal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>
+          <i class="fas fa-check-double"></i>
+          <span>Create Validation Rule</span>
+        </h3>
+        <button class="close-btn" onclick="closeRuleModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Intent *</label>
+          <div class="typeahead-container">
+            <input class="typeahead-input" id="ruleIntentSearch" placeholder="Search intent..." autocomplete="off">
+            <div class="typeahead-dropdown" id="ruleIntentDropdown"></div>
+          </div>
+          <input type="hidden" id="ruleIntent">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Rule Code *</label>
+          <input type="text" class="form-input" id="ruleCode" placeholder="e.g., SENDER_EMAIL_MATCH">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Rule Name *</label>
+          <input type="text" class="form-input" id="ruleName" placeholder="Human-readable rule name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Rule Description *</label>
+          <textarea class="form-textarea" id="ruleDescription" placeholder="Natural language description for LLM to understand validation logic..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Datasource *</label>
+          <input class="form-input" id="datasourceSearch" placeholder="Type to search datasources..." autocomplete="off">
+          <div id="datasourceDropdown" style="position: relative; display: none;">
+            <div id="datasourceList" style="position: absolute; top: 0; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: var(--radius); max-height: 200px; overflow-y: auto; box-shadow: var(--shadow-lg); z-index: 1000;"></div>
+          </div>
+          <input type="hidden" id="selectedDatasourceId">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Language</label>
+          <select class="form-select" id="ruleLanguage">
+            <option value="multi">Multi-language</option>
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Execution Order</label>
+            <input type="number" class="form-input" id="ruleOrder" min="1" value="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Severity</label>
+            <select class="form-select" id="ruleSeverity">
+              <option value="CRITICAL">Critical</option>
+              <option value="WARNING">Warning</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <div class="toggle-container">
+            <div id="ruleStatusToggle" class="toggle active" onclick="toggleRuleStatus()"></div>
+            <span class="toggle-label" id="ruleStatusText">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeRuleModal()" id="cancel">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button class="btn btn-primary" onclick="saveRule()">
+          <i class="fas fa-check"></i>
+          Save Rule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD DATASOURCE MODAL -->
+  <!-- ADD DATASOURCE MODAL -->
+<div class="modal" id="datasourceModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        <i class="fas fa-database"></i>
+        <span>Add Datasource</span>
+      </h3>
+      <button class="close-btn" onclick="closeDatasourceModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Name *</label>
+        <input class="form-input" id="datasourceName" placeholder="e.g., CRM_DB, LOAN_CORE_DB">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Type *</label>
+        <div class="custom-select-wrapper">
+          <div class="custom-select-trigger placeholder" id="datasourceTypeTrigger" onclick="toggleCustomSelect('datasourceType')">
+            Select type...
+          </div>
+          <div class="custom-select-options" id="datasourceTypeOptions">
+            <div class="custom-select-option" data-value="">Select type...</div>
+            <div class="custom-select-option" data-value="rest">Rest API</div>
+            <div class="custom-select-option" data-value="graphql">GraphQL</div>
+            <div class="custom-select-option" data-value="postgres">Postgres</div>
+            <div class="custom-select-option" data-value="sqlserver">SQL Server</div>
+            <div class="custom-select-option" data-value="oracle">Oracle</div>
+            <div class="custom-select-option" data-value="hana">SAP HANA</div>
+            <div class="custom-select-option" data-value="sap_hana_client">SAP HANA Client</div>
+            <div class="custom-select-option" data-value="oracle_jdbc">Oracle (JDBC)</div>
+            <div class="custom-select-option" data-value="oracle_odbc">Oracle (ODBC)</div>
+            <div class="custom-select-option" data-value="suiteanalytics_connect">SuiteAnalytics Connect (Oracle)</div>
+            <div class="custom-select-option" data-value="progress_datadirect">Progress DataDirect (Generic SQL)</div>
+            <div class="custom-select-option" data-value="cdata_generic_jdbc">CData Generic (JDBC)</div>
+            <div class="custom-select-option" data-value="cdata_generic_odbc">CData Generic (ODBC)</div>
+            <div class="custom-select-option" data-value="cdata_salesforce_jdbc">Salesforce (CData JDBC)</div>
+            <div class="custom-select-option" data-value="cdata_servicenow_jdbc">ServiceNow (CData JDBC)</div>
+            <div class="custom-select-option" data-value="cdata_servicemax_jdbc">ServiceMax (CData JDBC)</div>
+            <div class="custom-select-option" data-value="dataverse_odbc">Microsoft Dataverse (ODBC)</div>
+            <div class="custom-select-option" data-value="epicor_sqlserver_odbc">Epicor (SQL Server, ODBC)</div>
+            <div class="custom-select-option" data-value="epicor_sqlserver_jdbc">Epicor (SQL Server, JDBC)</div>
+            <div class="custom-select-option" data-value="epicor_cdata_odbc">Epicor (CData ODBC)</div>
+            <div class="custom-select-option" data-value="epicor_cdata_jdbc">Epicor (CData JDBC)</div>
+            <div class="custom-select-option" data-value="epic_sqlserver_odbc">Epic (SQL Server, ODBC)</div>
+            <div class="custom-select-option" data-value="epic_sqlserver_jdbc">Epic (SQL Server, JDBC)</div>
+            <div class="custom-select-option" data-value="cerner_oracle_odbc">Cerner (Oracle, ODBC)</div>
+            <div class="custom-select-option" data-value="cerner_oracle_jdbc">Cerner (Oracle, JDBC)</div>
+            <div class="custom-select-option" data-value="generic">Generic ANSI SQL</div>
+          </div>
+        </div>
+        <input type="hidden" id="datasourceType" value="">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Connection Key *</label>
+        <input class="form-input" id="datasourceConnectionKey" placeholder="e.g., CONFIG_NAME">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description (Optional)</label>
+        <textarea class="form-textarea" id="datasourceDescription" placeholder="Describe this datasource..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="toggle-container">
+          <div id="datasourceIsActive" class="toggle active" onclick="toggleDatasourceActive()"></div>
+          <span class="toggle-label" id="datasourceActiveLabel">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDatasourceModal()" id="cancel">
+        <i class="fas fa-times"></i>
+        Cancel
+      </button>
+      <button class="btn btn-primary" onclick="saveDatasource()">
+        <i class="fas fa-check"></i>
+        Save Datasource
+      </button>
+    </div>
+  </div>
+</div>
+  <!-- ADD DATASOURCE CONFIG MODAL -->
+  <div class="modal" id="configModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <i class="fas fa-cog"></i>
+          <span>Add Datasource Config</span>
+        </h3>
+        <button class="close-btn" onclick="closeConfigModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group" id="datasourceSearchGroup">
+          <label class="form-label">Select Datasource *</label>
+          <input class="form-input" id="configDatasourceSearch" placeholder="Type to search datasources without configs..." autocomplete="off">
+          <div id="configDatasourceDropdown" style="position: relative; display: none;">
+            <div id="configDatasourceList" style="position: absolute; top: 0; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: var(--radius); max-height: 200px; overflow-y: auto; box-shadow: var(--shadow-lg); z-index: 1000;"></div>
+          </div>
+          <input type="hidden" id="selectedConfigDatasourceId">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Name *</label>
+          <input class="form-input" id="configName" placeholder="e.g., SERVICENOW_ITSM_PROD" readonly style="background: var(--bg); cursor: not-allowed;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Protocol *</label>
+          <select class="form-input" id="configProtocol">
+            <option value="">Select protocol...</option>
+            <option value="sql">SQL</option>
+            <option value="rest">REST</option>
+            <option value="graphql">GraphQL</option>
+            <option value="file">File</option>
+            <option value="stream">Stream</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Driver Family *</label>
+          <input class="form-input" id="configDriver" placeholder="e.g., postgres, cdata, servicenow">
+
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Base URL</label>
+          <input class="form-input" id="configBaseUrl" placeholder="e.g., https://api.servicenow.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Auth Type</label>
+          <select class="form-input" id="configAuthType">
+            <option value="">Select auth type...</option>
+            <option value="oauth2">OAuth 2.0</option>
+            <option value="apikey">API Key</option>
+            <option value="basic">Basic Auth</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Auth Config (JSON)</label>
+          <textarea class="form-textarea" id="configAuthConfig" placeholder='{"client_id":"...", "token_url":"..."}' style="font-family: monospace;"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Connection JSON</label>
+          <textarea class="form-textarea" id="configConnectionJson" placeholder='{"host":"...", "port":5432}' style="font-family: monospace;"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Metadata Reference</label>
+          <input class="form-input" id="configMetadataRef" placeholder="e.g., https://api.example.com/openapi.json">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Router Base URL</label>
+          <input class="form-input" id="configRouterBaseUrl" placeholder="e.g., https://router.example.com/api">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <div class="toggle-container">
+            <div id="configIsActive" class="toggle active" onclick="toggleConfigActive()"></div>
+            <span class="toggle-label" id="configActiveLabel">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeConfigModal()" id="cancel">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button class="btn btn-primary" onclick="saveConfig()">
+          <i class="fas fa-check"></i>
+          Save Config
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION POPUP -->
+  <div class="notification-popup" id="notificationPopup">
+    <div class="notification-content">
+      <div class="notification-icon">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div class="notification-body">
+        <h4 class="notification-title" id="notificationTitle">Notification</h4>
+        <p class="notification-message" id="notificationMessage">This is a notification message.</p>
+        <div class="notification-link-container" id="notificationLinkContainer" style="display: none;">
+          <a href="#" class="notification-link" id="notificationLink">
+            <span id="notificationLinkText">View details</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      <button class="notification-close" onclick="closeNotification()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+  const API = window.location.origin;
+  
+  // Check tenant session
+  const tenantId = sessionStorage.getItem('tenant_id');
+  if (!tenantId) {
+    window.location.href = 'tenant-login.html';
+  }
+  
+
+  let intents = [];
+  let policies = [];
+  let datasources = [];
+  let allDatasources = [];
+  let configs = [];
+
+  // =============== CONSISTENT NOTIFICATIONS ===============
+  // type: 'success' | 'error' | 'warning' | 'info'
+  function showNotification(type, title, message, actionLabel = null, actionUrl = null) {
+    const titleEl = document.getElementById('notificationTitle');
+    const messageEl = document.getElementById('notificationMessage');
+    const linkContainer = document.getElementById('notificationLinkContainer');
+    const link = document.getElementById('notificationLink');
+    const linkTextEl = document.getElementById('notificationLinkText');
+    const popup = document.getElementById('notificationPopup');
+    const iconWrapper = document.querySelector('.notification-icon');
+    const iconEl = iconWrapper.querySelector('i');
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    if (actionLabel && actionUrl) {
+      linkTextEl.textContent = actionLabel;
+      link.href = actionUrl;
+      linkContainer.style.display = 'block';
+    } else {
+      linkContainer.style.display = 'none';
+    }
+
+    iconWrapper.style.background = 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)';
+    iconEl.className = 'fas fa-info-circle';
+
+    if (type === 'success') {
+      iconWrapper.style.background = 'linear-gradient(135deg, var(--success) 0%, #059669 100%)';
+      iconEl.className = 'fas fa-check-circle';
+    } else if (type === 'error') {
+      iconWrapper.style.background = 'linear-gradient(135deg, var(--danger) 0%, #b91c1c 100%)';
+      iconEl.className = 'fas fa-times-circle';
+    } else if (type === 'warning') {
+      iconWrapper.style.background = 'linear-gradient(135deg, var(--warning) 0%, #d97706 100%)';
+      iconEl.className = 'fas fa-exclamation-triangle';
+    } else {
+      iconWrapper.style.background = 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)';
+      iconEl.className = 'fas fa-info-circle';
+    }
+
+    popup.classList.add('active');
+
+    if (!actionLabel && !actionUrl) {
+      setTimeout(closeNotification, 6000);
+    }
+  }
+
+  function closeNotification() {
+    document.getElementById('notificationPopup').classList.remove('active');
+  }
+
+  // Safely get an error message string from a fetch response
+  async function getErrorMessage(response) {
+  try {
+    const text = await response.text();
+    if (!text) return 'Unexpected server error.';
+    
+    try {
+      const json = JSON.parse(text);
+      
+      // Handle array of validation errors (FastAPI/Pydantic format)
+      if (Array.isArray(json)) {
+        return 'Please fill in all required fields correctly.';
+      }
+      
+      // Handle single error object
+      if (typeof json === 'string') return json;
+      if (json.detail) {
+        if (Array.isArray(json.detail)) {
+          return 'Please fill in all required fields correctly.';
+        }
+        return typeof json.detail === 'string' ? json.detail : JSON.stringify(json.detail);
+      }
+      return JSON.stringify(json);
+    } catch {
+      return text;
+    }
+  } catch {
+    return 'Unexpected server error.';
+  }
+}
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('notificationPopup').addEventListener('click', function(e) {
+      if (e.target === this) closeNotification();
+    });
+  });
+
+  // =============== DASHBOARD STATS ===============
+  async function loadDashboardStats() {
+    try {
+      const [intentsData, policiesData, rules, datasourcesData, configsData] = await Promise.all([
+        fetch(`${API}/intents`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json()),
+        fetch(`${API}/intents/policies/all`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json()),
+        fetch(`${API}/validation-rules`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json()),
+        fetch(`${API}/datasources`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json()),
+        fetch(`${API}/datasource-configs`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json())
+      ]);
+
+      intents = intentsData;
+      policies = policiesData;
+      allDatasources = datasourcesData;
+      datasources = datasourcesData.filter(d => d.is_active);
+      configs = configsData;
+
+      document.getElementById('intentsCount').textContent = intents.length;
+      document.getElementById('policiesCount').textContent = policies.length;
+      document.getElementById('rulesCount').textContent = rules.length;
+      document.getElementById('datasourcesCount').textContent = allDatasources.length;
+      document.getElementById('datasourceConfigsCount').textContent = configs.length;
+
+      const activeIntents = intents.filter(i => i.is_active).length;
+      document.getElementById('intentsFooter').textContent = `${activeIntents} active`;
+
+      document.getElementById('policiesFooter').textContent = `${policies.length} configured`;
+
+      const activeRules = rules.filter(r => r.is_active).length;
+      document.getElementById('rulesFooter').textContent = `${activeRules} active`;
+
+      const activeDatasources = allDatasources.filter(d => d.is_active).length;
+      document.getElementById('datasourcesFooter').textContent = `${activeDatasources} active`;
+
+      const activeConfigs = configs.filter(c => c.is_active).length;
+      document.getElementById('datasourceConfigsFooter').textContent = `${activeConfigs} active`;
+    } catch (error) {
+      console.error('Failed to load dashboard stats:', error);
+
+      ['intentsCount', 'policiesCount', 'rulesCount', 'datasourcesCount', 'datasourceConfigsCount']
+        .forEach(id => document.getElementById(id).innerHTML = '<i class="fas fa-exclamation-circle"></i>');
+      ['intentsFooter', 'policiesFooter', 'rulesFooter', 'datasourcesFooter', 'datasourceConfigsFooter']
+        .forEach(id => document.getElementById(id).textContent = 'Error loading');
+
+      showNotification(
+        'error',
+        'Error',
+        'Unable to load the latest stats. Check the API service and try again.'
+      );
+    }
+  }
+
+  // =============== INTENT MODAL ===============
+function openAddIntentModal() {
+  document.getElementById("intentName").value = "";
+  document.getElementById("intentDisplayName").value = "";
+  document.getElementById("intentDescription").value = "";
+  document.getElementById("intentCategory").value = "";
+  
+  // Set toggle to active
+  const toggle = document.getElementById("intentIsActive");
+  const label = document.getElementById("intentActiveLabel");
+  toggle.classList.add("active");
+  label.textContent = "Active";
+  
+  document.getElementById("intentModal").classList.add("active");
+}
+
+  function closeIntentModal() {
+    document.getElementById("intentModal").classList.remove("active");
+  }
+
+  async function saveIntent() {
+  
+      const toggle = document.getElementById("intentIsActive");
+  
+      const payload = {
+        intent_code: document.getElementById("intentName").value.trim(),
+        display_name: document.getElementById("intentDisplayName").value.trim(),
+        description: document.getElementById("intentDescription").value.trim(),
+        category: document.getElementById("intentCategory").value.trim() || null,
+        is_active: toggle.classList.contains("active"), // Changed from dropdown
+        policies: []
+      };
+
+    if (!payload.intent_code || !payload.display_name) {
+      showNotification('warning', 'Warning', 'Please fill in all required fields.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/intents`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Tenant-ID": tenantId
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const msg = await getErrorMessage(res);
+        throw new Error(msg);
+      }
+
+      closeIntentModal();
+      await loadDashboardStats();
+      showNotification(
+        'success',
+        'Success',
+        `Intent "${payload.display_name}" has been created and is now available.`,
+        'View intents',
+        'intents.html'
+      );
+    } catch (error) {
+      console.error("Error saving intent:", error);
+      showNotification(
+        'error',
+        'Error',
+        error.message || 'Unable to save the intent. Try again.'
+      );
+    }
+  }
+
+  // =============== POLICY MODAL ===============
+  function openAddPolicyModal() {
+    if (intents.length === 0) {
+      showNotification(
+        'warning',
+        'Warning',
+        'Please fill in all required fields.',
+        'Create intent',
+        'intents.html'
+      );
+      return;
+    }
+
+    const activeIntents = intents.filter(i => i.is_active);
+    const intentsWithPolicies = activeIntents.filter(i => 
+      policies.some(p => p.intent_id == i.intent_id)
+    );
+    
+    if (activeIntents.length > 0 && intentsWithPolicies.length === activeIntents.length) {
+      showNotification(
+        'info',
+        'Info',
+        'All active intents already have policies. Edit them from the Intent Policies page.',
+        'Open intent policies',
+        'intent-policies.html'
+      );
+      return;
+    }
+
+    document.getElementById("policyIntentSearch").value = "";
+    document.getElementById("policyIntent").value = "";
+    document.getElementById("policyLanguage").value = "multi";
+    document.getElementById("policyN8nUrl").value = "";
+    document.getElementById("policyAutoConf").value = "";
+    document.getElementById("policyManualConf").value = "";
+    document.getElementById("policyRerouteEmail").value = "";
+    document.getElementById("policyMultiIntentMode").value = "STRICT_SINGLE";
+    document.getElementById("policyAllowMultiAuto").checked = false;
+    document.getElementById("policyAllowSubsetAuto").checked = false;
+    document.getElementById("policyAlertMessage").style.display = "none";
+    document.getElementById("savePolicyBtn").disabled = false;
+    
+    document.getElementById("policyModal").classList.add("active");
+  }
+
+  function closePolicyModal() {
+    document.getElementById("policyModal").classList.remove("active");
+  }
+
+ async function savePolicy() {
+  const intentId = document.getElementById("policyIntent").value;
+  const autoConf = document.getElementById("policyAutoConf").value.trim();
+  const manualConf = document.getElementById("policyManualConf").value.trim();
+  
+  // ✅ Simple consistent validation like other modals
+  if (!intentId || !autoConf || !manualConf) {
+    showNotification('warning', 'Warning', 'Please fill in all required fields.');
+    return;
+  }
+
+  const intentHasPolicy = policies.some(p => p.intent_id == intentId);
+  if (intentHasPolicy) {
+    const intent = intents.find(i => i.intent_id == intentId);
+    showNotification(
+      'info',
+      'Info',
+      `The intent "${intent ? intent.display_name : 'selected'}" already has a policy. Edit it from the Intent Policies page.`,
+      'Open intent policies',
+      'intent-policies.html'
+    );
+    return;
+  }
+  
+  const payload = {
+    language_code: document.getElementById("policyLanguage").value,
+    n8n_orchestration_url: document.getElementById("policyN8nUrl").value.trim() || null,
+    auto_process_min_conf: parseFloat(autoConf),
+    manual_review_min_conf: parseFloat(manualConf),
+    reroute_email: document.getElementById("policyRerouteEmail").value.trim() || null,
+    multi_intent_mode: document.getElementById("policyMultiIntentMode").value,
+    allow_multi_auto: document.getElementById("policyAllowMultiAuto").checked,
+    allow_subset_auto: document.getElementById("policyAllowSubsetAuto").checked
+  };
+  
+  try {
+    const res = await fetch(`${API}/intents/${intentId}/policies`, { 
+      method: "POST", 
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Tenant-ID": tenantId
+      }, 
+      body: JSON.stringify(payload) 
+    });
+    
+    if (!res.ok) {
+      const msg = await getErrorMessage(res);
+      throw new Error(msg);
+    }
+    
+    closePolicyModal();
+    await loadDashboardStats();
+    showNotification(
+      'success',
+      'Success',
+      'The intent policy has been created successfully.',
+      'View policies',
+      'intent-policies.html'
+    );
+  } catch (err) {
+    console.error('Failed to save policy:', err);
+    showNotification(
+      'error',
+      'Error',
+      err.message || 'Unable to save the intent policy. Try again.'
+    );
+  }
+}
+  const policyIntentSearch = document.getElementById("policyIntentSearch");
+  const policyIntentDropdown = document.getElementById("policyIntentDropdown");
+
+  if (policyIntentSearch) {
+    policyIntentSearch.addEventListener("input", function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      document.getElementById("policyIntent").value = "";
+
+      if (!searchTerm) {
+        policyIntentDropdown.classList.remove("active");
+        return;
+      }
+
+      const filtered = intents.filter(i => 
+        i.is_active && (
+          i.display_name.toLowerCase().includes(searchTerm) ||
+          i.intent_code.toLowerCase().includes(searchTerm)
+        )
+      );
+
+      if (filtered.length === 0) {
+        policyIntentDropdown.innerHTML = '<div class="typeahead-item">No intents found</div>';
+        policyIntentDropdown.classList.add("active");
+        return;
+      }
+
+      policyIntentDropdown.innerHTML = filtered
+        .map(i => {
+          const hasPolicy = policies.some(p => p.intent_id == i.intent_id);
+          return `<div class="typeahead-item" onclick="selectPolicyIntent('${i.intent_id}', '${escapeHtml(i.display_name)}')" style="${hasPolicy ? 'opacity: 0.5; cursor: not-allowed;' : ''}">${escapeHtml(i.display_name)} ${hasPolicy ? '(Has policy)' : ''}</div>`;
+        })
+        .join("");
+
+      policyIntentDropdown.classList.add("active");
+    });
+
+    document.addEventListener("click", function(e) {
+      if (!policyIntentSearch.contains(e.target) && !policyIntentDropdown.contains(e.target)) {
+        policyIntentDropdown.classList.remove("active");
+      }
+    });
+  }
+
+  function selectPolicyIntent(intentId, displayName) {
+    const hasPolicy = policies.some(p => p.intent_id == intentId);
+    if (hasPolicy) {
+      showNotification(
+        'info',
+        'Info',
+        `The intent "${displayName}" already has a policy. Edit it from the Intent Policies page.`,
+        'Open intent policies',
+        'intent-policies.html'
+      );
+      return;
+    }
+    document.getElementById("policyIntentSearch").value = displayName;
+    document.getElementById("policyIntent").value = intentId;
+    document.getElementById("policyIntentDropdown").classList.remove("active");
+  }
+
+  // =============== RULE MODAL ===============
+  function openAddRuleModal() {
+    if (intents.length === 0) {
+      showNotification(
+        'warning',
+        'Warning',
+        'Please fill in all required fields.',
+        'Create intent',
+        'intents.html'
+      );
+      return;
+    }
+
+    document.getElementById("ruleIntentSearch").value = "";
+    document.getElementById("ruleIntent").value = "";
+    document.getElementById("ruleCode").value = "";
+    document.getElementById("ruleName").value = "";
+    document.getElementById("ruleDescription").value = "";
+    document.getElementById("datasourceSearch").value = "";
+    document.getElementById("selectedDatasourceId").value = "";
+    document.getElementById("datasourceSearch").style.borderColor = "";
+    document.getElementById("datasourceSearch").style.background = "";
+    document.getElementById("ruleLanguage").value = "multi";
+    document.getElementById("ruleOrder").value = "1";
+    document.getElementById("ruleSeverity").value = "CRITICAL";
+    document.getElementById("ruleStatusToggle").classList.add("active");
+    document.getElementById("ruleStatusText").textContent = "Active";
+    
+    document.getElementById("ruleModal").classList.add("active");
+  }
+
+  function closeRuleModal() {
+    document.getElementById("ruleModal").classList.remove("active");
+  }
+
+  function toggleRuleStatus() {
+    const toggle = document.getElementById("ruleStatusToggle");
+    const text = document.getElementById("ruleStatusText");
+    toggle.classList.toggle("active");
+    text.textContent = toggle.classList.contains("active") ? "Active" : "Inactive";
+  }
+
+  async function saveRule() {
+    const intentId = document.getElementById("ruleIntent").value;
+    const ruleCode = document.getElementById("ruleCode").value.trim();
+    const ruleName = document.getElementById("ruleName").value.trim();
+    const ruleDescription = document.getElementById("ruleDescription").value.trim();
+    const datasourceId = document.getElementById("selectedDatasourceId").value;
+
+    if (!intentId || !ruleCode || !ruleName || !ruleDescription || !datasourceId) {
+      showNotification('warning', 'Warning', 'Please fill in all required fields.');
+      return;
+    }
+
+    const payload = {
+      intent_id: parseInt(intentId),
+      language_code: document.getElementById("ruleLanguage").value,
+      rule_code: ruleCode,
+      rule_name: ruleName,
+      rule_description: ruleDescription,
+      datasource_id: parseInt(datasourceId),
+      execution_order: parseInt(document.getElementById("ruleOrder").value),
+      severity: document.getElementById("ruleSeverity").value,
+      is_active: document.getElementById("ruleStatusToggle").classList.contains("active")
+    };
+
+    try {
+      const res = await fetch(`${API}/validation-rules`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Tenant-ID": tenantId
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const msg = await getErrorMessage(res);
+        throw new Error(msg);
+      }
+
+      closeRuleModal();
+      await loadDashboardStats();
+      showNotification(
+        'success',
+        'Success',
+        `Rule "${ruleName}" has been created and is now active.`,
+        'View rules',
+        'rules.html'
+      );
+    } catch (error) {
+      console.error("Error saving rule:", error);
+      showNotification(
+        'error',
+        'Error',
+        error.message || 'Unable to save the validation rule. Try again.'
+      );
+    }
+  }
+
+  const ruleIntentSearch = document.getElementById("ruleIntentSearch");
+  const ruleIntentDropdown = document.getElementById("ruleIntentDropdown");
+
+  if (ruleIntentSearch) {
+    ruleIntentSearch.addEventListener("input", function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      document.getElementById("ruleIntent").value = "";
+
+      if (!searchTerm) {
+        ruleIntentDropdown.classList.remove("active");
+        return;
+      }
+
+      const filtered = intents.filter(i => 
+        i.is_active && (
+          i.display_name.toLowerCase().includes(searchTerm) ||
+          i.intent_code.toLowerCase().includes(searchTerm)
+        )
+      );
+
+      if (filtered.length === 0) {
+        ruleIntentDropdown.innerHTML = '<div class="typeahead-item">No intents found</div>';
+        ruleIntentDropdown.classList.add("active");
+        return;
+      }
+
+      ruleIntentDropdown.innerHTML = filtered
+        .map(i => `<div class="typeahead-item" onclick="selectRuleIntent('${i.intent_id}', '${escapeHtml(i.display_name)}')">${escapeHtml(i.display_name)}</div>`)
+        .join("");
+
+      ruleIntentDropdown.classList.add("active");
+    });
+
+    document.addEventListener("click", function(e) {
+      if (!ruleIntentSearch.contains(e.target) && !ruleIntentDropdown.contains(e.target)) {
+        ruleIntentDropdown.classList.remove("active");
+      }
+    });
+  }
+
+  function selectRuleIntent(intentId, displayName) {
+    document.getElementById("ruleIntentSearch").value = displayName;
+    document.getElementById("ruleIntent").value = intentId;
+    document.getElementById("ruleIntentDropdown").classList.remove("active");
+  }
+
+  // =============== DATASOURCE TYPEAHEAD + MODAL ===============
+  const datasourceSearchInput = document.getElementById("datasourceSearch");
+  const datasourceDropdown = document.getElementById("datasourceDropdown");
+  const datasourceDropdownList = document.getElementById("datasourceList");
+
+  if (datasourceSearchInput) {
+    datasourceSearchInput.addEventListener("input", function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      
+      document.getElementById("selectedDatasourceId").value = "";
+      datasourceSearchInput.style.borderColor = "";
+      datasourceSearchInput.style.background = "";
+      
+      if (!searchTerm) {
+        datasourceDropdown.style.display = "none";
+        return;
+      }
+      
+      const filtered = datasources.filter(ds => 
+        ds.name.toLowerCase().includes(searchTerm) || 
+        ds.datasource_type.toLowerCase().includes(searchTerm)
+      );
+      
+      if (filtered.length === 0) {
+        datasourceDropdownList.innerHTML = '<div style="padding: 10px 12px; color: var(--text-secondary); text-align: center;">No active datasources found</div>';
+        datasourceDropdown.style.display = "block";
+        return;
+      }
+      
+      datasourceDropdownList.innerHTML = filtered.map(ds => `
+        <div onclick="selectDatasource(${ds.datasource_id})" style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='white'">
+          <div style="font-weight: 600; color: var(--text-primary);">${escapeHtml(ds.name)}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Type: ${escapeHtml(ds.datasource_type)}
+</div>
+        </div>
+      `).join('');
+      
+      datasourceDropdown.style.display = "block";
+    });
+    
+    document.addEventListener("click", function(e) {
+      if (!datasourceSearchInput.contains(e.target) && !datasourceDropdown.contains(e.target)) {
+        datasourceDropdown.style.display = "none";
+      }
+    });
+  }
+
+  function selectDatasource(datasourceId) {
+    const datasource = datasources.find(ds => ds.datasource_id === datasourceId);
+    if (!datasource) return;
+    
+    document.getElementById("datasourceSearch").value = datasource.name;
+    document.getElementById("selectedDatasourceId").value = datasource.datasource_id;
+    
+    document.getElementById("datasourceSearch").style.borderColor = "var(--success)";
+    document.getElementById("datasourceSearch").style.background = "rgba(16, 185, 129, 0.05)";
+    
+    document.getElementById("datasourceDropdown").style.display = "none";
+  }
+
+  // =============== CUSTOM SELECT (DATASOURCE TYPE) ===============
+  function toggleCustomSelect(id) {
+    const trigger = document.getElementById(id + 'Trigger');
+    const options = document.getElementById(id + 'Options');
+    
+    document.querySelectorAll('.custom-select-options.active').forEach(opt => {
+      if (opt.id !== id + 'Options') {
+        opt.classList.remove('active');
+        document.getElementById(opt.id.replace('Options', 'Trigger')).classList.remove('active');
+      }
+    });
+    
+    trigger.classList.toggle('active');
+    options.classList.toggle('active');
+  }
+
+  function selectOption(id, optionElement) {
+    const value = optionElement.getAttribute('data-value');
+    const text = optionElement.textContent;
+    const trigger = document.getElementById(id + 'Trigger');
+    const hiddenInput = document.getElementById(id);
+    const optionsContainer = document.getElementById(id + 'Options');
+    
+    trigger.textContent = text;
+    trigger.classList.remove('placeholder');
+    hiddenInput.value = value;
+    
+    optionsContainer.querySelectorAll('.custom-select-option').forEach(opt => opt.classList.remove('selected'));
+    optionElement.classList.add('selected');
+    
+    trigger.classList.remove('active');
+    optionsContainer.classList.remove('active');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const typeOptions = document.getElementById('datasourceTypeOptions');
+    if (typeOptions) {
+      typeOptions.querySelectorAll('.custom-select-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+          e.stopPropagation();
+          selectOption('datasourceType', this);
+        });
+      });
+    }
+    
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.custom-select-wrapper')) {
+        document.querySelectorAll('.custom-select-options.active').forEach(options => {
+          options.classList.remove('active');
+          const triggerId = options.id.replace('Options', 'Trigger');
+          document.getElementById(triggerId).classList.remove('active');
+        });
+      }
+    });
+  });
+  
+  // =============== DATASOURCE MODAL ===============
+  // Custom Select Toggle Function
+function toggleCustomSelect(id) {
+  const trigger = document.getElementById(id + 'Trigger');
+  const options = document.getElementById(id + 'Options');
+  
+  document.querySelectorAll('.custom-select-options.active').forEach(opt => {
+    if (opt.id !== id + 'Options') {
+      opt.classList.remove('active');
+      document.getElementById(opt.id.replace('Options', 'Trigger')).classList.remove('active');
+    }
+  });
+  
+  trigger.classList.toggle('active');
+  options.classList.toggle('active');
+}
+
+function selectOption(id, optionElement) {
+  const value = optionElement.getAttribute('data-value');
+  const text = optionElement.textContent;
+  const trigger = document.getElementById(id + 'Trigger');
+  const hiddenInput = document.getElementById(id);
+  const optionsContainer = document.getElementById(id + 'Options');
+  
+  trigger.textContent = text;
+  trigger.classList.remove('placeholder');
+  hiddenInput.value = value;
+  
+  optionsContainer.querySelectorAll('.custom-select-option').forEach(opt => opt.classList.remove('selected'));
+  optionElement.classList.add('selected');
+  
+  trigger.classList.remove('active');
+  optionsContainer.classList.remove('active');
+}
+
+// Toggle for datasource active status
+function toggleDatasourceActive() {
+  const toggle = document.getElementById("datasourceIsActive");
+  const label = document.getElementById("datasourceActiveLabel");
+  toggle.classList.toggle("active");
+  label.textContent = toggle.classList.contains("active") ? "Active" : "Inactive";
+}
+
+// Initialize custom select event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  const typeOptions = document.getElementById('datasourceTypeOptions');
+  if (typeOptions) {
+    typeOptions.querySelectorAll('.custom-select-option').forEach(option => {
+      option.addEventListener('click', function(e) {
+        e.stopPropagation();
+        selectOption('datasourceType', this);
+      });
+    });
+  }
+  
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-select-wrapper')) {
+      document.querySelectorAll('.custom-select-options.active').forEach(options => {
+        options.classList.remove('active');
+        const triggerId = options.id.replace('Options', 'Trigger');
+        document.getElementById(triggerId).classList.remove('active');
+      });
+    }
+  });
+});
+  function openAddDatasourceModal() {
+  document.getElementById("datasourceName").value = "";
+  document.getElementById("datasourceType").value = "";
+  document.getElementById("datasourceTypeTrigger").textContent = "Select type...";
+  document.getElementById("datasourceTypeTrigger").classList.add("placeholder");
+  document.getElementById("datasourceConnectionKey").value = "";
+  document.getElementById("datasourceDescription").value = "";
+  
+  // Reset toggle to active
+  const toggle = document.getElementById("datasourceIsActive");
+  const label = document.getElementById("datasourceActiveLabel");
+  toggle.classList.add("active");
+  label.textContent = "Active";
+  
+  // Remove selected class from all options
+  document.querySelectorAll('#datasourceTypeOptions .custom-select-option').forEach(opt => opt.classList.remove('selected'));
+  
+  document.getElementById("datasourceModal").classList.add("active");
+}
+
+function closeDatasourceModal() {
+  document.getElementById("datasourceModal").classList.remove("active");
+  document.querySelectorAll('.custom-select-options.active').forEach(opt => opt.classList.remove('active'));
+  document.querySelectorAll('.custom-select-trigger.active').forEach(trigger => trigger.classList.remove('active'));
+}
+async function saveDatasource() {
+  const toggle = document.getElementById("datasourceIsActive");
+  
+  const payload = {
+    name: document.getElementById("datasourceName").value.trim(),
+    datasource_type: document.getElementById("datasourceType").value.trim(),
+    connection_key: document.getElementById("datasourceConnectionKey").value.trim(),
+    description: document.getElementById("datasourceDescription").value.trim(),
+    is_active: toggle.classList.contains("active")
+  };
+
+  if (!payload.name || !payload.datasource_type || !payload.connection_key) {
+    showNotification('warning', 'Warning', 'Please fill in all required fields.');
+    return;
+  }
+
+  // ✅ DEBUG: Check what we have
+  console.log('🔍 ALL DATASOURCES:', allDatasources);
+  console.log('🔍 CHECKING CONNECTION KEY:', payload.connection_key);
+
+  // ✅ Check for duplicate connection_key (ANY existing datasource)
+  const existingDatasource = allDatasources.find(ds => 
+    ds.connection_key === payload.connection_key
+  );
+  
+  console.log('🔍 EXISTING DATASOURCE FOUND:', existingDatasource);
+  
+  if (existingDatasource) {
+    showNotification(
+      'warning',
+      'Duplicate Connection Key',
+      `Connection Key "${payload.connection_key}" is already used by datasource "${existingDatasource.name}". Please use a unique Connection Key.`
+    );
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/datasources`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Tenant-ID": tenantId
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const msg = await getErrorMessage(res);
+      throw new Error(msg);
+    }
+
+    closeDatasourceModal();
+    await loadDashboardStats();
+    showNotification(
+      'success',
+      'Success',
+      `Datasource "${payload.name}" has been created and is ready to use.`,
+      'View datasources',
+      'datasources.html'
+    );
+  } catch (error) {
+    console.error("Error saving datasource:", error);
+    showNotification(
+      'error',
+      'Error',
+      error.message || 'Unable to save the datasource. Try again.'
+    );
+  }
+}
+
+  // =============== CONFIG MODAL ===============
+  function openAddConfigModal() {
+    if (allDatasources.length === 0) {
+      showNotification(
+        'warning',
+        'Warning',
+        'Please fill in all required fields.',
+        'Create datasource',
+        'datasources.html'
+      );
+      return;
+    }
+
+    const activeDatasources = allDatasources.filter(ds => ds.is_active);
+    const datasourcesWithConfigs = activeDatasources.filter(ds => 
+      configs.some(c => c.name === ds.connection_key)
+    );
+    
+    if (activeDatasources.length > 0 && datasourcesWithConfigs.length === activeDatasources.length) {
+      showNotification(
+        'info',
+        'Info',
+        'All active datasources already have configurations. Edit them from the Datasource Configs page.',
+        'Open datasource configs',
+        'datasource-configs.html'
+      );
+      return;
+    }
+
+    document.getElementById("configDatasourceSearch").value = "";
+    document.getElementById("selectedConfigDatasourceId").value = "";
+    document.getElementById("configName").value = "";
+    document.getElementById("configProtocol").value = "";
+    document.getElementById("configDriver").value = "";
+    document.getElementById("configBaseUrl").value = "";
+    document.getElementById("configAuthType").value = "";
+    document.getElementById("configAuthConfig").value = "";
+    document.getElementById("configConnectionJson").value = "";
+    document.getElementById("configMetadataRef").value = "";
+    document.getElementById("configRouterBaseUrl").value = "";
+    
+    document.getElementById("configDatasourceSearch").style.borderColor = "";
+    document.getElementById("configDatasourceSearch").style.background = "";
+    
+    document.getElementById("configIsActive").classList.add("active");
+    document.getElementById("configActiveLabel").textContent = "Active";
+    
+    document.getElementById("configModal").classList.add("active");
+  }
+
+  function closeConfigModal() {
+    document.getElementById("configModal").classList.remove("active");
+    document.getElementById("configDatasourceDropdown").style.display = "none";
+  }
+
+  function toggleConfigActive() {
+    const toggle = document.getElementById("configIsActive");
+    const label = document.getElementById("configActiveLabel");
+    toggle.classList.toggle("active");
+    label.textContent = toggle.classList.contains("active") ? "Active" : "Inactive";
+  }
+
+  const configDatasourceSearch = document.getElementById("configDatasourceSearch");
+  const configDatasourceDropdown = document.getElementById("configDatasourceDropdown");
+  const configDatasourceList = document.getElementById("configDatasourceList");
+
+  if (configDatasourceSearch) {
+    configDatasourceSearch.addEventListener("input", function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      
+      document.getElementById("selectedConfigDatasourceId").value = "";
+      document.getElementById("configName").value = "";
+      document.getElementById("configDriver").value = "";
+      configDatasourceSearch.style.borderColor = "";
+      configDatasourceSearch.style.background = "";
+      
+      if (!searchTerm) {
+        configDatasourceDropdown.style.display = "none";
+        return;
+      }
+      
+      const filtered = allDatasources.filter(ds => 
+        ds.is_active && (
+          ds.name.toLowerCase().includes(searchTerm) || 
+          ds.type.toLowerCase().includes(searchTerm) ||
+          ds.connection_key.toLowerCase().includes(searchTerm)
+        )
+      );
+      
+      if (filtered.length === 0) {
+        configDatasourceList.innerHTML = '<div style="padding: 10px 12px; color: var(--text-secondary); text-align: center;">No datasources found</div>';
+        configDatasourceDropdown.style.display = "block";
+        return;
+      }
+      
+      configDatasourceList.innerHTML = filtered.map(ds => {
+        const hasConfig = configs.some(c => c.name === ds.connection_key);
+        return `
+          <div onclick="selectConfigDatasource(${ds.datasource_id})" style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: background 0.2s; ${hasConfig ? 'opacity: 0.5; cursor: not-allowed;' : ''}" onmouseover="this.style.background='${hasConfig ? 'white' : 'var(--bg)'}'" onmouseout="this.style.background='white'">
+            <div style="font-weight: 600; color: var(--text-primary);">${escapeHtml(ds.name)} ${hasConfig ? '(Has config)' : ''}</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">Type: ${escapeHtml(ds.datasource_type)}
+ | Key: ${escapeHtml(ds.connection_key)}</div>
+          </div>
+        `;
+      }).join('');
+      
+      configDatasourceDropdown.style.display = "block";
+    });
+    
+    document.addEventListener("click", function(e) {
+      if (!configDatasourceSearch.contains(e.target) && !configDatasourceDropdown.contains(e.target)) {
+        configDatasourceDropdown.style.display = "none";
+      }
+    });
+  }
+
+  function selectConfigDatasource(datasourceId) {
+  const datasource = allDatasources.find(ds => ds.datasource_id === datasourceId);
+  if (!datasource) return;
+
+  const hasConfig = configs.some(c => c.name === datasource.connection_key);
+  if (hasConfig) {
+    showNotification(
+      'info',
+      'Info',
+      `The datasource "${datasource.name}" already has a configuration. Edit it from the Datasource Configs page.`,
+      'Open datasource configs',
+      'datasource-configs.html'
+    );
+    return;
+  }
+
+  document.getElementById("configDatasourceSearch").value = datasource.name;
+  document.getElementById("selectedConfigDatasourceId").value = datasource.datasource_id;
+  document.getElementById("configName").value = datasource.connection_key;
+
+  // ✅ EXACT SAME BEHAVIOR AS datasource-configs.html
+  document.getElementById("configDriver").value = datasource.datasource_type;
+  document.getElementById("configDatasourceSearch").style.borderColor = "var(--success)";
+  document.getElementById("configDatasourceSearch").style.background = "rgba(16, 185, 129, 0.05)";
+
+  configDatasourceDropdown.style.display = "none";
+}
+
+
+  async function saveConfig() {
+    const selectedDatasourceId = document.getElementById("selectedConfigDatasourceId").value;
+    if (!selectedDatasourceId) {
+      showNotification('warning', 'Warning', 'Please fill in all required fields.');
+      document.getElementById("configDatasourceSearch").focus();
+      return;
+    }
+
+    const selectedDatasource = allDatasources.find(ds => ds.datasource_id == selectedDatasourceId);
+    if (!selectedDatasource) {
+      showNotification('error', 'Error', 'The selected datasource could not be found. Refresh the page and try again.');
+      return;
+    }
+
+    const datasourceHasConfig = configs.some(c => c.name === selectedDatasource.connection_key);
+    if (datasourceHasConfig) {
+      showNotification(
+        'info',
+        'Info',
+        `The datasource "${selectedDatasource.name}" already has a configuration.`,
+        'View configs',
+        'datasource-configs.html'
+      );
+      return;
+    }
+
+    let authConfig = null;
+    let connectionJson = null;
+
+    try {
+      const authConfigStr = document.getElementById("configAuthConfig").value.trim();
+      if (authConfigStr) authConfig = JSON.parse(authConfigStr);
+      
+      const connectionJsonStr = document.getElementById("configConnectionJson").value.trim();
+      if (connectionJsonStr) connectionJson = JSON.parse(connectionJsonStr);
+    } catch (e) {
+      showNotification(
+        'error',
+        'Error',
+        'Auth config or connection JSON is not valid. Check the syntax and try again.'
+      );
+      return;
+    }
+
+    const payload = {
+      name: document.getElementById("configName").value.trim(),
+      protocol: document.getElementById("configProtocol").value.trim(),
+      driver_family: document.getElementById("configDriver").value.trim(),
+      base_url: document.getElementById("configBaseUrl").value.trim() || null,
+      auth_type: document.getElementById("configAuthType").value.trim() || null,
+      auth_config: authConfig,
+      connection_json: connectionJson,
+      metadata_ref: document.getElementById("configMetadataRef").value.trim() || null,
+      router_base_url: document.getElementById("configRouterBaseUrl").value.trim() || null,
+      is_active: document.getElementById("configIsActive").classList.contains("active")
+    };
+
+    if (!payload.name || !payload.protocol || !payload.driver_family) {
+      showNotification('warning', 'Warning', 'Please fill in all required fields.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/datasource-configs`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Tenant-ID": tenantId
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const msg = await getErrorMessage(res);
+        showNotification('error', 'Error', msg || 'Unable to save the datasource configuration. Try again.');
+        return;
+      }
+
+      closeConfigModal();
+      await loadDashboardStats();
+      showNotification(
+        'success',
+        'Success',
+        `Configuration for "${payload.name}" has been saved and is now active.`,
+        'View configs',
+        'datasource-configs.html'
+      );
+    } catch (err) {
+      showNotification(
+        'error',
+        'Error',
+        err.message || 'Unable to save the datasource configuration. Try again.'
+      );
+    }
+  }
+function toggleIntentActive() {
+  const toggle = document.getElementById("intentIsActive");
+  const label = document.getElementById("intentActiveLabel");
+  toggle.classList.toggle("active");
+  label.textContent = toggle.classList.contains("active") ? "Active" : "Inactive";
+}
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+
+
+
+  function logout() {
+  // Clear tenant session
+  sessionStorage.removeItem('tenant_id');
+  
+  // Show notification
+  showNotification(
+    'success',
+    'Logged Out',
+    'You have been successfully logged out.'
+  );
+  
+  // Redirect to login page after a short delay
+  setTimeout(() => {
+    window.location.href = 'tenant-login.html';
+  }, 1000);
+}
+
+  // Close modals on backdrop click
+  document.getElementById('intentModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeIntentModal();
+  });
+
+  document.getElementById('policyModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closePolicyModal();
+  });
+
+  document.getElementById('ruleModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeRuleModal();
+  });
+
+  document.getElementById('datasourceModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeDatasourceModal();
+  });
+
+  document.getElementById('configModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeConfigModal();
+  });
+
+  // Initial load + refresh
+  loadDashboardStats();
+  setInterval(loadDashboardStats, 30000);
+</script>
+<script src="responsive.js"></script>
+
+</body>
+</html>

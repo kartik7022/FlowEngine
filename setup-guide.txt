@@ -1,0 +1,236 @@
+================================================================================
+                    HOW TO START FLOWENGINE PROJECT
+                         (After Receiving the ZIP File)
+================================================================================
+
+STEP 1: EXTRACT THE ZIP FILE
+-----------------------------
+1. Locate the flowengine.zip file you received
+2. Right-click on it and select "Extract All" (Windows) or double-click (Mac)
+3. Choose where to extract (Example: C:\Projects\ or ~/Projects/)
+4. You should now have a folder called "flowengine"
+
+STEP 2: INSTALL PREREQUISITES
+------------------------------
+Before you start, make sure you have:
+
+□ Python 3.8 or higher installed
+   - Check: Open terminal/cmd and type: python --version
+   - Download from: https://www.python.org if needed
+
+□ PostgreSQL installed and running
+   - Download from: https://www.postgresql.org if needed
+   - Make sure the PostgreSQL service is running
+
+STEP 3: CREATE DATABASE
+------------------------
+1. Open pgAdmin 4 (comes with PostgreSQL)
+2. Right-click on "Databases" → Create → Database
+3. Enter a name: flowengine (or any name you want)
+4. Click Save
+5. Remember this database name!
+
+STEP 4: OPEN TERMINAL IN PROJECT FOLDER
+----------------------------------------
+Windows:
+1. Open File Explorer
+2. Navigate to the extracted flowengine folder
+3. Click on the address bar and type: cmd
+4. Press Enter
+
+Mac/Linux:
+1. Open Terminal
+2. Type: cd /path/to/flowengine
+3. Press Enter
+
+STEP 5: CREATE VIRTUAL ENVIRONMENT
+-----------------------------------
+In the terminal, type exactly:
+
+    python -m venv venv
+
+Wait 10-30 seconds. A new "venv" folder will appear.
+
+STEP 6: ACTIVATE VIRTUAL ENVIRONMENT
+-------------------------------------
+Windows - Type:
+    venv\Scripts\activate
+
+Mac/Linux - Type:
+    source venv/bin/activate
+
+You should see (venv) at the start of your command line.
+
+STEP 7: INSTALL DEPENDENCIES
+-----------------------------
+Type:
+    pip install -r requirements.txt
+
+Wait 2-5 minutes. Many packages will be downloaded and installed.
+
+STEP 8: CONFIGURE ENVIRONMENT FILE
+-----------------------------------
+1. In the flowengine folder, find the file: .env.example
+2. Make a copy of it and rename the copy to: .env
+3. Open .env with Notepad or any text editor
+4. Replace YOUR_PASSWORD with your actual PostgreSQL password
+5. Replace YOUR_DATABASE with your database name (from Step 3)
+
+Example - if your password is "admin123" and database is "flowengine":
+   DATABASE_URL=postgresql+psycopg://postgres:admin123@localhost:5432/flowengine
+
+6. Save the file and close it
+
+STEP 9: START THE APPLICATION (FIRST TIME)
+-------------------------------------------
+Make sure:
+✓ Terminal is open in flowengine folder
+✓ Virtual environment is activated (you see (venv))
+✓ PostgreSQL is running
+
+Type:
+    python -m backend.main
+
+You should see:
+    INFO:     Uvicorn running on http://0.0.0.0:8000
+    INFO:     Application startup complete
+
+This will automatically create all database tables including the tenants table.
+
+DON'T CLOSE THIS TERMINAL YET!
+
+STEP 10: ADD TENANT DATA
+-------------------------
+1. Keep the application running in the terminal
+2. Open pgAdmin 4
+3. Navigate to your flowengine database
+4. Expand: Schemas → eivs → Tables
+5. You should see the "tenants" table already created
+6. Right-click on the database → Query Tool
+7. Copy and paste this SQL:
+
+INSERT INTO eivs.tenants (tenant_id, tenant_name, is_active) VALUES
+    ('tenant1', 'Tenant 1', TRUE),
+    ('tenant2', 'Tenant 2', TRUE),
+    ('demo', 'Demo Tenant', TRUE),
+    ('acme_corp', 'Acme Corporation', TRUE),
+    ('test_org', 'Test Organization', TRUE);
+
+8. Click Execute (or press F5)
+
+STEP 11: OPEN IN BROWSER AND LOGIN
+-----------------------------------
+1. Open your web browser (Chrome, Firefox, Edge, etc.)
+2. Go to: http://localhost:8000/static/index.html
+3. You will see a Tenant Login page
+4. Enter one of these Tenant IDs:
+   - tenant1
+   - tenant2
+   - demo
+   - acme_corp
+   - test_org
+5. Click Login/Submit button
+6. Now you should see the FlowEngine Dashboard!
+
+CONGRATULATIONS! The application is running!
+
+================================================================================
+                              IMPORTANT INFORMATION
+================================================================================
+
+Dashboard URL:    http://localhost:8000/static/index.html
+API Docs:         http://localhost:8000/docs
+
+
+AVAILABLE TENANT IDs (use any of these to login):
+- tenant1
+- tenant2
+- demo
+- acme_corp
+- test_org
+
+NOTE: You MUST enter a Tenant ID on the login page before accessing the dashboard!
+
+================================================================================
+                           HOW TO STOP THE APP
+================================================================================
+
+1. Go to the terminal where the app is running
+2. Press: Ctrl + C
+3. Wait for "Application shutdown complete"
+4. Type: deactivate
+5. Close terminal
+
+================================================================================
+                          HOW TO RESTART THE APP
+================================================================================
+
+1. Open terminal in flowengine folder
+2. Activate virtual environment:
+   Windows: venv\Scripts\activate
+   Mac/Linux: source venv/bin/activate
+3. Run: python -m backend.main
+4. Open browser: http://localhost:8000/static/index.html
+5. Enter your Tenant ID on the login page
+
+================================================================================
+                             TROUBLESHOOTING
+================================================================================
+
+PROBLEM: "No module named 'fastapi'"
+SOLUTION:
+- Virtual environment not activated
+- Run: venv\Scripts\activate (Windows) or source venv/bin/activate (Mac/Linux)
+- Then: pip install -r requirements.txt
+
+PROBLEM: Database connection error
+SOLUTION:
+- Check PostgreSQL is running
+- Check .env file has correct password
+- Verify database exists
+
+PROBLEM: "Tenant not found" error when logging in
+SOLUTION:
+- Make sure you ran the INSERT SQL in Step 10
+- Check the tenants table in pgAdmin to verify data exists
+- Use exact Tenant IDs: tenant1, tenant2, demo, acme_corp, or test_org
+
+PROBLEM: Port 8000 already in use
+SOLUTION:
+- Run: uvicorn backend.main:app --port 8001
+- Use: http://localhost:8001/static/index.html
+
+PROBLEM: Blank page in browser
+SOLUTION:
+- Clear browser cache (Ctrl+Shift+Delete)
+- Try different browser
+- Check correct URL
+
+PROBLEM: Login page not appearing
+SOLUTION:
+- Verify you're using the correct URL: http://localhost:8000/static/index.html
+- Check browser console for errors (Press F12)
+- Verify application is running in terminal
+
+================================================================================
+                              QUICK CHECKLIST
+================================================================================
+
+□ Python 3.8+ installed
+□ PostgreSQL installed and running
+□ Database created
+□ Project extracted
+□ Virtual environment created (venv folder exists)
+□ Virtual environment activated (see (venv) in terminal)
+□ Dependencies installed (pip install -r requirements.txt)
+□ .env file exists (not .env.example)
+□ .env has correct password and database name
+□ Application started (python -m backend.main)
+□ Tenants table automatically created
+□ Tenant data inserted (ran INSERT SQL)
+□ Browser can access http://localhost:8000/docs
+□ Can login with Tenant ID
+
+================================================================================
+                                END OF GUIDE
+================================================================================

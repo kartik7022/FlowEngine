@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Validation Rules</title>
+	<link rel="icon"href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%233B82F6' d='M466.5 83.7l-192-80a48.15 48.15 0 0 0-36.9 0l-192 80C27.7 91.1 16 108.6 16 128c0 198.5 114.5 335.7 221.5 380.3 11.8 4.9 25.1 4.9 36.9 0C360.1 472.6 496 349.3 496 128c0-19.4-11.7-36.9-29.5-44.3zM256.1 446.3l-.1-381 175.9 73.3c-3.3 151.4-82.1 261.1-175.8 307.7z'/></svg>">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			--primary: #0F172A;
+			--primary-light: #1E293B;
+			--secondary: #3B82F6;
+			--secondary-dark: #2563EB;
+			--accent: #8B5CF6;
+
+			--success: #10B981;
+			--danger: #EF4444;
+			--warning: #F59E0B;
+			--warning-dark: #D97706;
+
+			--bg: #F8FAFC;
+			--bg-secondary: #FFFFFF;
+			--border: #E2E8F0;
+			--border-light: #F1F5F9;
+
+			--text-primary: #0F172A;
+			--text-secondary: #64748B;
+			--text-tertiary: #94A3B8;
+
+			--radius: 10px;
+			--radius-lg: 14px;
+
+			--shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+			--shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+			--shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+			--shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
+		}
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			background: var(--bg);
+			color: var(--text-primary);
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+		}
+
+		.sidebar {
+			width: 260px;
+			height: 100vh;
+			background: var(--primary);
+			padding: 32px 24px;
+			position: fixed;
+			left: 0;
+			top: 0;
+			border-right: 1px solid rgba(255, 255, 255, 0.05);
+			display: flex;
+			flex-direction: column;
+		}
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			font-size: 1.5rem;
+			color: white;
+			font-weight: 700;
+			margin-bottom: 40px;
+			letter-spacing: -0.02em;
+		}
+
+		.logo i {
+			font-size: 1.6rem;
+			color: var(--secondary);
+			background: rgba(59, 130, 246, 0.15);
+			width: 42px;
+			height: 42px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 10px;
+		}
+
+		.nav-menu {
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+
+		.nav-link {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			padding: 14px 16px;
+			text-decoration: none;
+			color: rgba(255, 255, 255, 0.7);
+			border-radius: var(--radius);
+			font-size: 0.94rem;
+			font-weight: 500;
+			transition: all 0.2s ease;
+			position: relative;
+		}
+
+		.nav-link i {
+			font-size: 1.1rem;
+			width: 20px;
+			text-align: center;
+		}
+
+		.nav-link:hover {
+			background: rgba(255, 255, 255, 0.08);
+			color: white;
+			transform: translateX(2px);
+		}
+
+		.nav-link.active {
+			background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+			color: white;
+			font-weight: 600;
+			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+		}
+
+		.main-content {
+			margin-left: 260px;
+			min-height: 100vh;
+		}
+
+		.topbar {
+			background: var(--bg-secondary);
+			padding: 24px 40px;
+			border-bottom: 1px solid var(--border);
+			box-shadow: var(--shadow-xs);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			position: sticky;
+			top: 0;
+			z-index: 100;
+		}
+
+		.topbar-title {
+			font-size: 1.75rem;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			letter-spacing: -0.02em;
+		}
+
+		.topbar-title i {
+			font-size: 1.5rem;
+			color: var(--secondary);
+			background: rgba(59, 130, 246, 0.1);
+			width: 48px;
+			height: 48px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: var(--radius);
+		}
+
+		.selected-intent-badge {
+			font-size: 0.9rem;
+			font-weight: 600;
+			background: rgba(139, 92, 246, 0.1);
+			color: var(--accent);
+			padding: 6px 12px;
+			border-radius: var(--radius);
+			display: inline-flex;
+			align-items: center;
+		}
+
+		.change-intent-btn {
+			padding: 11px 20px;
+			background: white;
+			color: var(--secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			font-size: 0.94rem;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		}
+
+		.change-intent-btn:hover {
+			background: var(--bg);
+			border-color: var(--secondary);
+		}
+
+		.add-btn {
+			padding: 11px 20px;
+			background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+			color: white;
+			border-radius: var(--radius);
+			font-size: 0.94rem;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			border: none;
+			cursor: pointer;
+			box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+			transition: all 0.2s ease;
+		}
+
+		.add-btn:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+		}
+
+		.content-area {
+			padding: 36px 40px;
+			max-width: 1600px;
+		}
+
+		.card {
+			background: white;
+			border-radius: var(--radius-lg);
+			border: 1px solid var(--border);
+			box-shadow: var(--shadow-sm);
+			overflow: hidden;
+		}
+
+		.card-header {
+			padding: 24px 32px;
+			border-bottom: 1px solid var(--border-light);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: linear-gradient(to bottom, #FAFBFC 0%, #FFFFFF 100%);
+		}
+
+		.card-title {
+			font-size: 1.15rem;
+			font-weight: 700;
+			color: var(--text-primary);
+			letter-spacing: -0.01em;
+		}
+
+		.stats-badge {
+			background: var(--bg);
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 0.85rem;
+			font-weight: 600;
+			color: var(--text-secondary);
+		}
+
+		/* FIXED TABLE STYLES - PREVENTS COLUMN OVERFLOW */
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			table-layout: fixed;
+			/* Forces fixed column widths */
+		}
+
+		thead {
+			border-bottom: 2px solid var(--border);
+		}
+
+		tbody tr {
+			border-bottom: 1px solid var(--border-light);
+		}
+
+		th {
+			background: #FAFBFC;
+			padding: 18px 16px;
+			text-align: center;
+			font-weight: 700;
+			color: var(--text-secondary);
+			font-size: 0.82rem;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			border-bottom: none;
+		}
+
+		/* Set explicit column widths for validation rules */
+		/* Balanced column widths */
+		th:nth-child(1) {
+			width: 20%;
+		}
+
+		/* Rule */
+		th:nth-child(2) {
+			width: 22%;
+		}
+
+		/* Intent */
+		th:nth-child(3) {
+			width: 22%;
+		}
+
+		/* Datasource */
+		th:nth-child(4) {
+			width: 11%;
+		}
+
+		/* Status */
+		th:nth-child(5) {
+			width: 25%;
+		}
+
+		/* Actions */
+
+
+		/* Actions */
+
+		td:nth-child(5) {
+			padding-right: 32px !important;
+		}
+
+
+		td {
+			padding: 28px 16px;
+			border-bottom: none;
+			font-size: 0.94rem;
+			text-align: center;
+			/* Enable text wrapping */
+			word-wrap: break-word;
+			overflow-wrap: break-word;
+			hyphens: auto;
+			/* Vertically center content */
+			vertical-align: middle;
+		}
+
+		/* Add extra padding to Actions column cells */
+
+		tr {
+			transition: all 0.15s ease;
+		}
+
+		tr:hover {
+			background: #F8FAFC;
+			box-shadow: inset 3px 0 0 var(--secondary);
+		}
+
+		.intent-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			background: rgba(139, 92, 246, 0.1);
+			color: var(--accent);
+			padding: 6px 12px;
+			border-radius: 6px;
+			font-size: 0.85rem;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+
+		.datasource-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			background: rgba(59, 130, 246, 0.1);
+			color: var(--secondary);
+			padding: 5px 10px;
+			border-radius: 6px;
+			font-size: 0.8rem;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+
+		.severity-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			border-radius: 6px;
+			font-size: 0.85rem;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+
+		.severity-critical {
+			background: rgba(239, 68, 68, 0.1);
+			color: var(--danger);
+		}
+
+		.severity-warning {
+			background: rgba(245, 158, 11, 0.1);
+			color: var(--warning);
+		}
+
+		.status-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			border-radius: 6px;
+			font-size: 0.85rem;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+
+		.status-active {
+			background: rgba(16, 163, 117, 0.1);
+			color: var(--success);
+		}
+
+		.status-inactive {
+			background: rgba(148, 163, 184, 0.15);
+			color: var(--text-secondary);
+		}
+
+		.rule-description {
+			color: var(--text-secondary);
+			line-height: 1.5;
+			text-align: center;
+		}
+
+		.rule-name {
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 4px;
+			text-align: center;
+		}
+
+		.actions {
+			display: inline-flex;
+			gap: 4px;
+			justify-content: center;
+			/* Keep all buttons in one line */
+			flex-wrap: nowrap;
+			/* Vertically center the buttons */
+			align-items: center;
+			/* Add margin to prevent touching borders */
+			margin: 6px 0;
+		}
+
+		.action-btn {
+			padding: 6px 10px;
+			border-radius: var(--radius);
+			border: 1px solid var(--border);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			background: white;
+			color: var(--text-secondary);
+			font-size: 0.8rem;
+			font-weight: 600;
+			/* Prevent buttons from wrapping text */
+			white-space: nowrap;
+			/* Prevent button from shrinking */
+			flex-shrink: 0;
+			line-height: 1;
+		}
+
+		.action-btn i {
+			font-size: 0.8rem;
+			margin-right: 4px;
+		}
+
+		.action-btn:hover {
+			background: var(--secondary);
+			color: white;
+			border-color: var(--secondary);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+		}
+
+		.action-btn.delete:hover {
+			background: var(--danger);
+			border-color: var(--danger);
+			box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+		}
+
+		/* STANDARDIZED MODAL STYLES - FIXED VERSION */
+		.modal {
+			position: fixed;
+			inset: 0;
+			background: rgba(15, 23, 42, 0.6);
+			backdrop-filter: blur(4px);
+			display: none;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+			z-index: 2000;
+			animation: fadeIn 0.2s ease;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		.modal.active {
+			display: flex;
+		}
+
+		.modal-content {
+			background: white;
+			padding: 0;
+			border-radius: var(--radius-lg);
+			width: 100%;
+			max-width: 600px;
+			box-shadow: var(--shadow-lg);
+			animation: slideUp 0.3s ease;
+			max-height: 90vh;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+
+		@keyframes slideUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.modal-header {
+			padding: 20px 24px;
+			border-bottom: 2px solid var(--border-light);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: linear-gradient(to bottom, #FAFBFC 0%, #FFFFFF 100%);
+			flex-shrink: 0;
+		}
+
+		.modal-header h3 {
+			font-size: 1.35rem;
+			font-weight: 700;
+			color: var(--text-primary);
+			letter-spacing: -0.01em;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.modal-header h3 i {
+			width: 40px;
+			height: 40px;
+			background: rgba(59, 130, 246, 0.1);
+			color: var(--secondary);
+			border-radius: var(--radius);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.1rem;
+		}
+
+		.close-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: var(--radius);
+			border: 1px solid var(--border);
+			background: white;
+			color: var(--text-secondary);
+			font-size: 1.3rem;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s ease;
+		}
+
+		.close-btn:hover {
+			background: var(--danger);
+			color: white;
+			border-color: var(--danger);
+		}
+
+		.modal-body {
+			padding: 24px;
+			overflow-y: auto;
+			flex: 1;
+		}
+
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+		}
+
+		.form-group {
+			margin-bottom: 16px;
+		}
+
+		.form-label {
+			display: block;
+			font-size: 0.875rem;
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 8px;
+		}
+
+		.form-label.required::after {
+			content: " *";
+			color: var(--danger);
+		}
+
+		.form-input,
+		.form-textarea,
+		.form-select {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			font-size: 0.9rem;
+			font-family: inherit;
+			color: var(--text-primary);
+			transition: all 0.2s ease;
+			background: var(--bg-secondary);
+		}
+
+		.form-input:focus,
+		.form-textarea:focus,
+		.form-select:focus {
+			outline: none;
+			border-color: var(--secondary);
+			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+			background: white;
+		}
+
+		.form-textarea {
+			resize: vertical;
+			min-height: 80px;
+			line-height: 1.6;
+		}
+
+		.form-select {
+			cursor: pointer;
+		}
+
+		.toggle-container {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			padding: 8px 0;
+		}
+
+		.toggle {
+			width: 52px;
+			height: 28px;
+			background: #CBD5E1;
+			border-radius: 14px;
+			cursor: pointer;
+			position: relative;
+			transition: all 0.3s ease;
+		}
+
+		.toggle.active {
+			background: var(--success);
+		}
+
+		.toggle::after {
+			content: '';
+			width: 22px;
+			height: 22px;
+			background: white;
+			border-radius: 50%;
+			position: absolute;
+			top: 3px;
+			left: 3px;
+			transition: all 0.3s ease;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+		}
+
+		.toggle.active::after {
+			transform: translateX(24px);
+		}
+
+		.toggle-label {
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+
+		.modal-footer {
+			padding: 16px 24px;
+			border-top: 2px solid var(--border-light);
+			display: flex;
+			justify-content: flex-end;
+			gap: 10px;
+			background: var(--bg);
+			flex-shrink: 0;
+		}
+
+		.btn {
+			padding: 10px 18px;
+			border-radius: var(--radius);
+			border: none;
+			cursor: pointer;
+			font-weight: 600;
+			font-size: 0.875rem;
+			transition: all 0.2s ease;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+			color: white;
+			box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+		}
+
+		.btn-secondary {
+			background: white;
+			color: var(--text-primary);
+			border: 1px solid var(--border);
+		}
+
+		.btn-secondary:hover {
+			background: var(--danger);
+			color: white;
+			border-color: var(--danger);
+		}
+
+		.btn-danger {
+			background: var(--danger);
+			color: white;
+			box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+		}
+
+		.btn-danger:hover {
+			background: #DC2626;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+		}
+
+		.delete-modal-content {
+			max-width: 480px;
+			text-align: center;
+		}
+
+		.modal-icon {
+			width: 64px;
+			height: 64px;
+			background: rgba(239, 68, 68, 0.1);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 20px;
+		}
+
+		.modal-icon i {
+			font-size: 1.8rem;
+			color: var(--danger);
+		}
+
+		.modal-title {
+			font-size: 1.35rem;
+			font-weight: 700;
+			margin-bottom: 12px;
+			color: var(--text-primary);
+			letter-spacing: -0.01em;
+			text-align: center;
+		}
+
+		.modal-text {
+			color: var(--text-secondary);
+			font-size: 0.95rem;
+			margin-bottom: 24px;
+			line-height: 1.6;
+			text-align: center;
+		}
+
+		.empty-state {
+			padding: 80px 20px;
+			text-align: center;
+			color: var(--text-secondary);
+		}
+
+		.empty-icon {
+			width: 120px;
+			height: 120px;
+			background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 24px;
+		}
+
+		.empty-icon i {
+			font-size: 3.5rem;
+			color: var(--secondary);
+			opacity: 0.5;
+		}
+
+		.empty-state h3 {
+			font-size: 1.25rem;
+			font-weight: 700;
+			margin-bottom: 10px;
+			color: var(--text-primary);
+		}
+
+		.empty-state p {
+			font-size: 0.95rem;
+			color: var(--text-tertiary);
+		}
+
+		.loading {
+			padding: 60px;
+			text-align: center;
+			color: var(--text-secondary);
+		}
+
+		.loading i {
+			font-size: 2rem;
+			margin-bottom: 16px;
+			color: var(--secondary);
+		}
+
+		.loading-text {
+			font-size: 0.95rem;
+			font-weight: 500;
+		}
+
+		/* NOTIFICATION POPUP */
+		.notification-popup {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(15, 23, 42, 0.5);
+			backdrop-filter: blur(8px);
+			display: none;
+			justify-content: center;
+			align-items: center;
+			z-index: 3000;
+			animation: fadeIn 0.2s ease;
+		}
+
+		.notification-popup.active {
+			display: flex;
+		}
+
+		.notification-content {
+			background: white;
+			border-radius: var(--radius-lg);
+			box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+			max-width: 500px;
+			width: 90%;
+			padding: 0;
+			animation: slideUpBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+			display: flex;
+			gap: 20px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		@keyframes slideUpBounce {
+			0% {
+				opacity: 0;
+				transform: translateY(50px) scale(0.9);
+			}
+
+			100% {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+			}
+		}
+
+		.notification-icon {
+			background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+			padding: 32px 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.notification-icon i {
+			font-size: 2.5rem;
+			color: white;
+		}
+
+		.notification-body {
+			padding: 28px 20px 28px 0;
+			flex: 1;
+		}
+
+		.notification-title {
+			font-size: 1.3rem;
+			font-weight: 700;
+			color: var(--text-primary);
+			margin-bottom: 10px;
+			letter-spacing: -0.01em;
+		}
+
+		.notification-message {
+			font-size: 0.95rem;
+			color: var(--text-secondary);
+			line-height: 1.6;
+			margin-bottom: 0;
+		}
+
+		.notification-link-container {
+			margin-top: 18px;
+			padding-top: 18px;
+			border-top: 1px solid var(--border-light);
+		}
+
+		.notification-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 18px;
+			background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+			color: white;
+			text-decoration: none;
+			border-radius: var(--radius);
+			font-weight: 600;
+			font-size: 0.9rem;
+			transition: all 0.2s ease;
+			box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+		}
+
+		.notification-link:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+			gap: 12px;
+		}
+
+		.notification-close {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			width: 32px;
+			height: 32px;
+			border: none;
+			background: rgba(15, 23, 42, 0.05);
+			color: var(--text-secondary);
+			border-radius: 50%;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1rem;
+			transition: all 0.2s ease;
+		}
+
+		.notification-close:hover {
+			background: var(--danger);
+			color: white;
+			transform: rotate(90deg);
+		}
+
+		@media (max-width: 640px) {
+			.notification-content {
+				flex-direction: column;
+				max-width: 95%;
+			}
+
+			.notification-icon {
+				padding: 24px;
+			}
+
+			.notification-body {
+				padding: 20px;
+			}
+		}
+
+		/* INTENT SELECTION MODAL SPECIFIC STYLES */
+		#intentSelectionModal .close-btn {
+			display: none;
+			/* Hide close button - user must select */
+		}
+
+		.intent-search-container {
+			position: relative;
+		}
+
+		.intent-option {
+			padding: 14px 16px;
+			cursor: pointer;
+			border-bottom: 1px solid var(--border-light);
+			transition: all 0.2s ease;
+		}
+
+		.intent-option:hover {
+			background: var(--bg);
+		}
+
+		.intent-option-details {
+			flex: 1;
+		}
+
+		.intent-option-name {
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 2px;
+		}
+
+		.intent-option-code {
+			font-size: 0.85rem;
+			color: var(--text-secondary);
+		}
+
+		.intent-list-container {
+			max-height: 400px;
+			overflow-y: auto;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			margin-top: 12px;
+			display: none;
+			/* Hidden by default */
+		}
+
+		.intent-list-container.show {
+			display: block;
+		}
+
+		.no-intents-message {
+			padding: 40px 20px;
+			text-align: center;
+			color: var(--text-secondary);
+		}
+
+		.search-hint {
+			color: var(--text-secondary);
+			font-size: 0.9rem;
+			margin-top: 8px;
+			font-style: italic;
+		}
+
+		/* EXPANDABLE RULE ROW */
+		.expanded-row {
+			display: none;
+		}
+
+		.expanded-row.show {
+			display: table-row;
+		}
+
+		.expanded-content {
+			padding: 24px 32px;
+			background: #F8FAFC;
+			border-top: 2px solid var(--border);
+		}
+
+		.expanded-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 18px 28px;
+		}
+
+		.expanded-field {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.expanded-field-label {
+			font-size: 0.75rem;
+			font-weight: 700;
+			color: var(--text-secondary);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+
+		.expanded-field-value {
+			font-size: 0.92rem;
+			font-weight: 600;
+			background: white;
+			padding: 10px 12px;
+			border-radius: var(--radius);
+			border: 1px solid var(--border-light);
+		}
+
+		/* Ultra-compact row hint (reusable) */
+		.table-note {
+			margin: 6px 24px;
+			/* minimal vertical space */
+			padding: 4px 8px;
+
+			font-size: 0.78rem;
+			font-weight: 500;
+			color: var(--text-tertiary);
+
+			background: transparent;
+			border-left: 2px solid var(--secondary);
+		}
+	</style>
+	<link rel="stylesheet" href="responsive.css">
+
+</head>
+
+<body>
+
+	<!-- SIDEBAR -->
+	<aside class="sidebar">
+		<div class="logo">
+			<i class="fas fa-shield-alt"></i>
+			<span>FlowEngine</span>
+		</div>
+		<nav class="nav-menu">
+			<a href="index.html" class="nav-link"><i class="fas fa-home"></i>Dashboard</a>
+			<a href="datasources.html" class="nav-link"><i class="fas fa-database"></i>Datasources</a>
+			<a href="datasource-configs.html" class="nav-link"><i class="fas fa-cog"></i>Datasource Configs</a>
+			<a href="intents.html" class="nav-link"><i class="fas fa-bullseye"></i>Intents</a>
+			<a href="intent-policies.html" class="nav-link"><i class="fas fa-sliders-h"></i>Intent Policies</a>
+			<a href="rules.html" class="nav-link active"><i class="fas fa-check-double"></i>Validation Rules</a>
+		</nav>
+	</aside>
+
+	<!-- MAIN -->
+	<main class="main-content">
+
+		<div class="topbar">
+			<h1 class="topbar-title">
+				<i class="fas fa-check-double"></i>
+				<span>Validation Rules</span>
+			</h1>
+			<div style="display: flex; gap: 10px; align-items: center;">
+				<button class="change-intent-btn" id="changeIntentBtn" onclick="openIntentSelectionModal()"
+					style="display: none;">
+					Change Intent
+				</button>
+				<button onclick="openModal()" class="add-btn" id="addRuleBtn" style="display: none;">
+					<i class="fas fa-plus-circle"></i>Add Rule
+				</button>
+			</div>
+		</div>
+
+		<div class="content-area">
+			<div class="card">
+				<div class="card-header">
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<div class="card-title">Rule Configuration</div>
+						<span class="selected-intent-badge" id="selectedIntentDisplay" style="display: none;">
+							<span id="selectedIntentName">All Intents</span>
+						</span>
+					</div>
+					<div class="stats-badge" id="statsBadge">0 rules</div>
+				</div>
+				<div class="table-note">
+					Click a row to view full validation-rule details
+				</div>
+
+				<div id="loadingState" class="loading" style="display:none;">
+					<i class="fas fa-spinner fa-spin"></i>
+					<div class="loading-text">Loading validation rules...</div>
+				</div>
+
+				<table id="rulesTableContainer" style="display: none;">
+					<thead>
+						<tr>
+							<th>Rule Name</th>
+							<th>Intent</th>
+							<th>Datasource</th>
+							<th>Status</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody id="rulesTable"></tbody>
+				</table>
+
+				<div id="emptyState" class="empty-state" style="display:none;">
+					<div class="empty-icon">
+						<i class="fas fa-check-double"></i>
+					</div>
+					<h3>No Validation Rules Found</h3>
+					<p>Get started by creating your first validation rule.</p>
+				</div>
+			</div>
+		</div>
+
+	</main>
+
+	<!-- INTENT SELECTION MODAL (MANDATORY ON LOAD) -->
+	<div class="modal active" id="intentSelectionModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>
+					<i class="fas fa-bullseye"></i>
+					<span>Select Intent</span>
+				</h3>
+				<button class="close-btn" style="display: none;">×</button>
+			</div>
+
+			<div class="modal-body">
+				<p style="color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6;">
+					Search and select an intent to view its validation rules.
+				</p>
+
+				<div class="intent-search-container">
+					<input type="text" class="form-input" id="intentSelectionSearch"
+						placeholder="Type to search intents or type 'all' for all intents..." autocomplete="off">
+				</div>
+
+				<div class="intent-list-container" id="intentListContainer">
+					<div id="intentSelectionList"></div>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button onclick="cancelIntentSelection()" class="btn btn-secondary">
+					<i class="fas fa-times"></i>
+					Cancel
+				</button>
+				<button onclick="confirmIntentSelection()" class="btn btn-primary">
+					<i class="fas fa-check"></i>
+					Continue
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- ADD/EDIT MODAL -->
+	<div class="modal" id="modalOverlay">
+		<div class="modal-content" style="max-width: 600px;">
+			<div class="modal-header">
+				<h3>
+					<i class="fas fa-check-double"></i>
+					<span id="modalTitleText">Add Rule</span>
+				</h3>
+				<button class="close-btn" onclick="closeModal()">×</button>
+			</div>
+
+			<div class="modal-body">
+				<input type="hidden" id="ruleId">
+
+				<div class="form-group" id="intentSearchGroup">
+					<label class="form-label">Select Intent *</label>
+					<input class="form-input" id="intentSearch" placeholder="Type to search intents..."
+						autocomplete="off">
+					<div id="intentDropdown" style="position: relative; display: none;">
+						<div id="intentList"
+							style="position: absolute; top: 0; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: var(--radius); max-height: 200px; overflow-y: auto; box-shadow: var(--shadow-lg); z-index: 1000;">
+						</div>
+					</div>
+					<input type="hidden" id="selectedIntentId">
+				</div>
+
+				<div class="form-group">
+					<label class="form-label">Rule Code *</label>
+					<input type="text" class="form-input" id="ruleCode" placeholder="e.g., SENDER_EMAIL_MATCH">
+				</div>
+
+				<div class="form-group">
+					<label class="form-label">Rule Name *</label>
+					<input type="text" class="form-input" id="ruleName" placeholder="Human-readable rule name">
+				</div>
+
+				<div class="form-group">
+					<label class="form-label">Rule Description *</label>
+					<textarea class="form-textarea" id="ruleDescription"
+						placeholder="Natural language description for LLM to understand validation logic..."></textarea>
+				</div>
+
+				<div class="form-group" id="datasourceSearchGroup">
+					<label class="form-label">Datasource *</label>
+					<input class="form-input" id="datasourceSearch" placeholder="Type to search datasources..."
+						autocomplete="off">
+					<div id="datasourceDropdown" style="position: relative; display: none;">
+						<div id="datasourceList"
+							style="position: absolute; top: 0; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: var(--radius); max-height: 200px; overflow-y: auto; box-shadow: var(--shadow-lg); z-index: 1000;">
+						</div>
+					</div>
+					<input type="hidden" id="selectedDatasourceId">
+				</div>
+
+				<div class="form-group">
+					<label class="form-label">Language</label>
+					<select class="form-select" id="ruleLanguage">
+						<option value="multi">Multi-language</option>
+						<option value="en">English</option>
+						<option value="es">Spanish</option>
+						<option value="fr">French</option>
+						<option value="de">German</option>
+					</select>
+				</div>
+
+				<div class="form-row">
+					<div class="form-group">
+						<label class="form-label">Execution Order</label>
+						<input type="number" class="form-input" id="ruleOrder" min="1" value="1">
+					</div>
+
+					<div class="form-group">
+						<label class="form-label">Severity</label>
+						<select class="form-select" id="ruleSeverity">
+							<option value="CRITICAL">Critical</option>
+							<option value="WARNING">Warning</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="form-label">Status</label>
+					<div class="toggle-container">
+						<div id="statusToggle" class="toggle active" onclick="toggleStatus()"></div>
+						<span class="toggle-label" id="statusText">Active</span>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="modal-footer">
+				<button class="btn btn-secondary" onclick="closeModal()">
+					<i class="fas fa-times"></i>
+					Cancel
+				</button>
+				<button class="btn btn-primary" onclick="saveRule()">
+					<i class="fas fa-check"></i>
+					Save Rule
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- DELETE MODAL -->
+	<div class="modal" id="deleteModal">
+		<div class="modal-content delete-modal-content">
+			<div class="modal-body" style="padding: 32px 24px; text-align: center;">
+				<div class="modal-icon">
+					<i class="fas fa-exclamation-triangle"></i>
+				</div>
+				<h3 class="modal-title">Delete Validation Rule</h3>
+				<p class="modal-text">
+					Are you sure you want to delete this validation rule? This action cannot be undone.
+				</p>
+				<input type="hidden" id="deleteRuleId">
+			</div>
+
+			<div class="modal-footer" style="border-top: none; justify-content: center;">
+				<button onclick="closeDeleteModal()" class="btn btn-secondary">Cancel</button>
+				<button onclick="confirmDelete()" class="btn btn-danger">
+					<i class="fas fa-trash"></i>
+					Delete Rule
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- NOTIFICATION POPUP -->
+	<div class="notification-popup" id="notificationPopup">
+		<div class="notification-content">
+			<div class="notification-icon" id="notificationIcon">
+				<i class="fas fa-info-circle" id="notificationIconEl"></i>
+			</div>
+			<div class="notification-body">
+				<h4 class="notification-title" id="notificationTitle">Information</h4>
+				<p class="notification-message" id="notificationMessage">This is a notification message.</p>
+				<div class="notification-link-container" id="notificationLinkContainer" style="display: none;">
+					<a href="#" class="notification-link" id="notificationLink">
+						<span id="notificationLinkText">Visit page</span>
+						<i class="fas fa-arrow-right"></i>
+					</a>
+				</div>
+			</div>
+			<button class="notification-close" onclick="closeNotification()">
+				<i class="fas fa-times"></i>
+			</button>
+		</div>
+	</div>
+
+	<script>
+		const API = window.location.origin;
+		// Check tenant session
+		const tenantId = sessionStorage.getItem('tenant_id');
+		if (!tenantId) {
+			window.location.href = 'tenant-login.html';
+		}
+		let rules = [];
+		let intents = [];
+		let datasources = [];
+		let selectedIntentFilter = null; // null = All Intents, number = specific intent_id
+		let tempSelectedIntentId = null; // Temporary selection in intent modal
+
+		// Check for URL parameters (when navigating from intents.html)
+		const urlParams = new URLSearchParams(window.location.search);
+		const urlIntentId = urlParams.get('intent_id');
+
+		// ==================== NOTIFICATION FUNCTIONS ====================
+		function showNotification(title, message, type = 'info', linkText = null, linkUrl = null) {
+			document.getElementById('notificationTitle').textContent = title;
+			document.getElementById('notificationMessage').textContent = message;
+
+			const icon = document.getElementById('notificationIcon');
+			const iconEl = document.getElementById('notificationIconEl');
+
+			switch (type) {
+				case 'success':
+					icon.style.background = 'linear-gradient(135deg, var(--success) 0%, #059669 100%)';
+					iconEl.className = 'fas fa-check-circle';
+					break;
+				case 'error':
+					icon.style.background = 'linear-gradient(135deg, var(--danger) 0%, #DC2626 100%)';
+					iconEl.className = 'fas fa-exclamation-circle';
+					break;
+				case 'warning':
+					icon.style.background = 'linear-gradient(135deg, var(--warning) 0%, var(--warning-dark) 100%)';
+					iconEl.className = 'fas fa-exclamation-triangle';
+					break;
+				default:
+					icon.style.background = 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)';
+					iconEl.className = 'fas fa-info-circle';
+			}
+
+			const linkContainer = document.getElementById('notificationLinkContainer');
+			const link = document.getElementById('notificationLink');
+			const linkTextEl = document.getElementById('notificationLinkText');
+
+			if (linkText && linkUrl) {
+				linkTextEl.textContent = linkText;
+				link.href = linkUrl;
+				linkContainer.style.display = 'block';
+			} else {
+				linkContainer.style.display = 'none';
+			}
+
+			document.getElementById('notificationPopup').classList.add('active');
+
+			if (!linkText && !linkUrl) {
+				setTimeout(() => closeNotification(), 6000);
+			}
+		}
+
+		function closeNotification() {
+			document.getElementById('notificationPopup').classList.remove('active');
+		}
+
+		/* LOAD DATA */
+		async function loadData() {
+			try {
+				document.getElementById("loadingState").style.display = "block";
+				document.getElementById("rulesTableContainer").style.display = "none";
+				document.getElementById("emptyState").style.display = "none";
+
+				const [i, r, d] = await Promise.all([
+					fetch(`${API}/intents`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json()),
+					fetch(`${API}/validation-rules`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json()),
+					fetch(`${API}/datasources`, { headers: { 'X-Tenant-ID': tenantId } }).then(r => r.json())
+				]);
+
+				intents = i;
+				rules = r;
+				datasources = d.filter(ds => ds.is_active); // Only show active datasources
+
+				document.getElementById("loadingState").style.display = "none";
+
+				// If URL has intent_id, pre-select it and skip modal
+				if (urlIntentId) {
+					const intentExists = intents.find(intent => intent.intent_id == urlIntentId);
+					if (intentExists) {
+						tempSelectedIntentId = parseInt(urlIntentId);
+						selectedIntentFilter = parseInt(urlIntentId);
+						closeIntentSelectionModal();
+						updateTopbarDisplay();
+						renderTable();
+						return;
+					}
+				}
+
+				// If filter has been selected (either specific intent OR "All Intents" = null), render table
+				if (selectedIntentFilter !== undefined) {
+					renderTable();
+				}
+
+				// Otherwise show intent selection modal without any list (user must search)
+
+			} catch (error) {
+				console.error("Error loading data:", error);
+				document.getElementById("loadingState").innerHTML =
+					'<i class="fas fa-exclamation-circle"></i><div class="loading-text">Failed to load validation rules</div>';
+			}
+		}
+
+		function escapeHtml(text) {
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+
+		function updateStatsBadge(count) {
+			const badge = document.getElementById('statsBadge');
+			badge.textContent = `${count} ${count === 1 ? 'rule' : 'rules'}`;
+		}
+
+		// ==================== INTENT SELECTION MODAL ====================
+		function populateIntentSelectionList(searchTerm = '') {
+			const listContainer = document.getElementById('intentSelectionList');
+			const containerDiv = document.getElementById('intentListContainer');
+
+			if (!searchTerm || searchTerm.trim() === '') {
+				containerDiv.classList.remove('show');
+				return;
+			}
+
+			searchTerm = searchTerm.toLowerCase().trim();
+
+			// Check if searching for "all"
+			const showAllOption = 'all'.includes(searchTerm) || 'all intents'.includes(searchTerm);
+
+			// Filter intents
+			const filtered = intents.filter(intent =>
+				intent.intent_code.toLowerCase().includes(searchTerm) ||
+				intent.display_name.toLowerCase().includes(searchTerm)
+			);
+
+			if (!showAllOption && filtered.length === 0) {
+				listContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">No matching intents found</div>';
+				containerDiv.classList.add('show');
+				return;
+			}
+
+			let html = '';
+
+			// Add "All Intents" option if searching for "all"
+			if (showAllOption) {
+				html += `
+		<div class="intent-option" onclick="selectIntentInModal(null)">
+		  <div class="intent-option-details">
+			<div class="intent-option-name">All Intents</div>
+			<div class="intent-option-code">View validation rules for all intents</div>
+		  </div>
+		</div>
+	  `;
+			}
+
+			// Add filtered intents
+			filtered.forEach(intent => {
+				html += `
+		<div class="intent-option" onclick="selectIntentInModal(${intent.intent_id})">
+		  <div class="intent-option-details">
+			<div class="intent-option-name">${escapeHtml(intent.display_name)}</div>
+			<div class="intent-option-code">Code: ${escapeHtml(intent.intent_code)}</div>
+		  </div>
+		</div>
+	  `;
+			});
+
+			listContainer.innerHTML = html;
+			containerDiv.classList.add('show');
+		}
+
+		function selectIntentInModal(intentId) {
+			tempSelectedIntentId = intentId;
+
+			const searchInput = document.getElementById('intentSelectionSearch');
+			const listContainer = document.getElementById('intentListContainer');
+
+			// Fill search box with selected intent name
+			if (intentId === null) {
+				searchInput.value = "All Intents";
+			} else {
+				const intent = intents.find(i => i.intent_id === intentId);
+				if (intent) {
+					searchInput.value = intent.display_name;
+				}
+			}
+
+			// Hide the dropdown
+			listContainer.classList.remove('show');
+		}
+
+		function confirmIntentSelection() {
+			if (tempSelectedIntentId === undefined || tempSelectedIntentId === null) {
+				showNotification(
+					'Selection Required',
+					'Please search and select an intent or type "all" for all intents before continuing.',
+					'warning'
+				);
+				return;
+			}
+
+			selectedIntentFilter = tempSelectedIntentId;
+			closeIntentSelectionModal();
+			updateTopbarDisplay();
+			renderTable();
+		}
+
+		function cancelIntentSelection() {
+			window.location.href = 'index.html';
+		}
+
+		function closeIntentSelectionModal() {
+			document.getElementById('intentSelectionModal').classList.remove('active');
+			document.getElementById('addRuleBtn').style.display = 'flex';
+			document.getElementById('changeIntentBtn').style.display = 'flex';
+			document.getElementById('selectedIntentDisplay').style.display = 'inline-flex';
+		}
+
+		function openIntentSelectionModal() {
+			tempSelectedIntentId = selectedIntentFilter;
+			document.getElementById('intentSelectionSearch').value = '';
+			document.getElementById('intentListContainer').classList.remove('show');
+			document.getElementById('intentSelectionModal').classList.add('active');
+		}
+
+		function updateTopbarDisplay() {
+			const displayElement = document.getElementById('selectedIntentName');
+
+			if (selectedIntentFilter === null) {
+				displayElement.textContent = 'All Intents';
+			} else {
+				const intent = intents.find(i => i.intent_id === selectedIntentFilter);
+				if (intent) {
+					displayElement.textContent = escapeHtml(intent.display_name);
+				}
+			}
+		}
+		function toggleExpandRule(id, event) {
+			if (event && event.target.closest('.action-btn')) return;
+
+			const row = document.getElementById(`expanded-rule-${id}`);
+			if (row) row.classList.toggle('show');
+		}
+
+		// Intent selection search functionality
+		document.addEventListener("DOMContentLoaded", function () {
+			document.getElementById('notificationPopup').addEventListener('click', function (e) {
+				if (e.target === this) closeNotification();
+			});
+
+			// Intent selection search functionality
+			const selectionSearchInput = document.getElementById('intentSelectionSearch');
+
+			selectionSearchInput.addEventListener('input', function () {
+				const searchTerm = this.value;
+				populateIntentSelectionList(searchTerm);
+			});
+
+			// Type-ahead search functionality for INTENT in Add/Edit Modal
+			const searchInput = document.getElementById("intentSearch");
+			const dropdown = document.getElementById("intentDropdown");
+			const dropdownList = document.getElementById("intentList");
+
+			searchInput.addEventListener("input", function () {
+				const searchTerm = this.value.toLowerCase().trim();
+
+				// Reset selection and visual feedback when typing
+				document.getElementById("selectedIntentId").value = "";
+				searchInput.style.borderColor = "";
+				searchInput.style.background = "";
+
+				if (!searchTerm) {
+					dropdown.style.display = "none";
+					return;
+				}
+
+				const filtered = intents.filter(intent =>
+					intent.intent_code.toLowerCase().includes(searchTerm) ||
+					intent.display_name.toLowerCase().includes(searchTerm)
+				);
+
+				if (filtered.length === 0) {
+					dropdownList.innerHTML = '<div style="padding: 10px 12px; color: var(--text-secondary); text-align: center;">No intents found</div>';
+					dropdown.style.display = "block";
+					return;
+				}
+
+				dropdownList.innerHTML = filtered.map(intent => `
+		<div onclick="selectIntent(${intent.intent_id})" style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='white'">
+		  <div style="font-weight: 600; color: var(--text-primary);">${escapeHtml(intent.display_name)}</div>
+		  <div style="font-size: 0.85rem; color: var(--text-secondary);">Code: ${escapeHtml(intent.intent_code)}</div>
+		</div>
+	  `).join('');
+
+				dropdown.style.display = "block";
+			});
+
+			// Close dropdown when clicking outside
+			document.addEventListener("click", function (e) {
+				if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+					dropdown.style.display = "none";
+				}
+			});
+
+			// Type-ahead search functionality for DATASOURCE
+			const datasourceSearchInput = document.getElementById("datasourceSearch");
+			const datasourceDropdown = document.getElementById("datasourceDropdown");
+			const datasourceDropdownList = document.getElementById("datasourceList");
+
+			datasourceSearchInput.addEventListener("input", function () {
+				const searchTerm = this.value.toLowerCase().trim();
+
+				// Reset selection and visual feedback when typing
+				document.getElementById("selectedDatasourceId").value = "";
+				datasourceSearchInput.style.borderColor = "";
+				datasourceSearchInput.style.background = "";
+
+				if (!searchTerm) {
+					datasourceDropdown.style.display = "none";
+					return;
+				}
+
+				const filtered = datasources.filter(ds =>
+					ds.name.toLowerCase().includes(searchTerm) ||
+					ds.type.toLowerCase().includes(searchTerm)
+				);
+
+				if (filtered.length === 0) {
+					datasourceDropdownList.innerHTML = '<div style="padding: 10px 12px; color: var(--text-secondary); text-align: center;">No active datasources found</div>';
+					datasourceDropdown.style.display = "block";
+					return;
+				}
+
+				datasourceDropdownList.innerHTML = filtered.map(ds => `
+		<div onclick="selectDatasource(${ds.datasource_id})" style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='white'">
+		  <div style="font-weight: 600; color: var(--text-primary);">${escapeHtml(ds.name)}</div>
+		  <div style="font-size: 0.85rem; color: var(--text-secondary);">Type: ${escapeHtml(ds.type)}</div>
+		</div>
+	  `).join('');
+
+				datasourceDropdown.style.display = "block";
+			});
+
+			// Close datasource dropdown when clicking outside
+			document.addEventListener("click", function (e) {
+				if (!datasourceSearchInput.contains(e.target) && !datasourceDropdown.contains(e.target)) {
+					datasourceDropdown.style.display = "none";
+				}
+			});
+
+			loadData();
+		});
+
+		function selectIntent(intentId) {
+			const intent = intents.find(i => i.intent_id === intentId);
+			if (!intent) return;
+
+			// Set values
+			document.getElementById("intentSearch").value = intent.display_name;
+			document.getElementById("selectedIntentId").value = intent.intent_id;
+
+			// Add visual feedback
+			document.getElementById("intentSearch").style.borderColor = "var(--success)";
+			document.getElementById("intentSearch").style.background = "rgba(16, 185, 129, 0.05)";
+
+			document.getElementById("intentDropdown").style.display = "none";
+
+			// Auto-update execution order when intent is selected
+			if (!document.getElementById("ruleId").value) {
+				updateNextOrder(intentId);
+			}
+		}
+
+		function selectDatasource(datasourceId) {
+			const datasource = datasources.find(ds => ds.datasource_id === datasourceId);
+			if (!datasource) return;
+
+			// Set values
+			document.getElementById("datasourceSearch").value = datasource.name;
+			document.getElementById("selectedDatasourceId").value = datasource.datasource_id;
+
+			// Add visual feedback
+			document.getElementById("datasourceSearch").style.borderColor = "var(--success)";
+			document.getElementById("datasourceSearch").style.background = "rgba(16, 185, 129, 0.05)";
+
+			document.getElementById("datasourceDropdown").style.display = "none";
+		}
+
+		/* Modal open */
+		async function openModal() {
+			document.getElementById("modalTitleText").innerText = "Add Rule";
+			document.getElementById("ruleId").value = "";
+			document.getElementById("ruleCode").value = "";
+			document.getElementById("ruleName").value = "";
+			document.getElementById("ruleDescription").value = "";
+			document.getElementById("ruleLanguage").value = "multi";
+			document.getElementById("ruleOrder").value = "1";
+			document.getElementById("ruleSeverity").value = "CRITICAL";
+			document.getElementById("statusToggle").classList.add("active");
+			document.getElementById("statusText").innerText = "Active";
+
+			// Show and reset intent search
+			document.getElementById("intentSearchGroup").style.display = "block";
+			document.getElementById("intentSearch").value = "";
+			document.getElementById("selectedIntentId").value = "";
+			document.getElementById("intentSearch").style.borderColor = "";
+			document.getElementById("intentSearch").style.background = "";
+
+			// Show and reset datasource search
+			document.getElementById("datasourceSearchGroup").style.display = "block";
+			document.getElementById("datasourceSearch").value = "";
+			document.getElementById("selectedDatasourceId").value = "";
+			document.getElementById("datasourceSearch").style.borderColor = "";
+			document.getElementById("datasourceSearch").style.background = "";
+
+			// Pre-select intent if specific intent is selected in filter
+			if (selectedIntentFilter !== null) {
+				const intent = intents.find(i => i.intent_id === selectedIntentFilter);
+				if (intent) {
+					document.getElementById("intentSearch").value = intent.display_name;
+					document.getElementById("selectedIntentId").value = intent.intent_id;
+					document.getElementById("intentSearch").style.borderColor = "var(--success)";
+					document.getElementById("intentSearch").style.background = "rgba(16, 185, 129, 0.05)";
+					await updateNextOrder(intent.intent_id);
+				}
+			}
+
+			document.getElementById("modalOverlay").classList.add("active");
+		}
+
+		function closeModal() {
+			document.getElementById("modalOverlay").classList.remove("active");
+		}
+
+		/* Update execution order based on intent */
+		async function updateNextOrder(intentId) {
+			if (!intentId) return;
+
+			try {
+				const languageCode = document.getElementById("ruleLanguage").value;
+				const response = await fetch(`${API}/validation-rules/next-order/${intentId}?language_code=${languageCode}`, {
+					headers: { 'X-Tenant-ID': tenantId }
+				});
+				const data = await response.json();
+				document.getElementById("ruleOrder").value = data.next_execution_order;
+			} catch (error) {
+				console.error("Error fetching next order:", error);
+			}
+		}
+
+		/* Status toggle */
+		function toggleStatus() {
+			const t = document.getElementById("statusToggle");
+			t.classList.toggle("active");
+			document.getElementById("statusText").innerText = t.classList.contains("active") ? "Active" : "Inactive";
+		}
+
+		/* Edit rule */
+		function editRule(id) {
+			const r = rules.find(x => x.rule_id === id);
+			if (!r) return;
+
+			document.getElementById("modalTitleText").innerText = "Edit Rule";
+			document.getElementById("ruleId").value = id;
+
+			// Hide intent search when editing
+			document.getElementById("intentSearchGroup").style.display = "none";
+
+			// Show datasource search and pre-fill
+			document.getElementById("datasourceSearchGroup").style.display = "block";
+			const datasource = datasources.find(ds => ds.datasource_id === r.datasource_id);
+			if (datasource) {
+				document.getElementById("datasourceSearch").value = datasource.name;
+				document.getElementById("selectedDatasourceId").value = datasource.datasource_id;
+				document.getElementById("datasourceSearch").style.borderColor = "var(--success)";
+				document.getElementById("datasourceSearch").style.background = "rgba(16, 185, 129, 0.05)";
+			}
+
+			document.getElementById("ruleCode").value = r.rule_code;
+			document.getElementById("ruleName").value = r.rule_name;
+			document.getElementById("ruleDescription").value = r.rule_description;
+			document.getElementById("ruleLanguage").value = r.language_code;
+			document.getElementById("ruleOrder").value = r.execution_order;
+			document.getElementById("ruleSeverity").value = r.severity;
+
+			const toggle = document.getElementById("statusToggle");
+			const statusText = document.getElementById("statusText");
+
+			if (r.is_active) {
+				toggle.classList.add("active");
+				statusText.innerText = "Active";
+			} else {
+				toggle.classList.remove("active");
+				statusText.innerText = "Inactive";
+			}
+
+			document.getElementById("modalOverlay").classList.add("active");
+		}
+
+		/* Save rule */
+		async function saveRule() {
+			const id = document.getElementById("ruleId").value;
+
+			// CRITICAL VALIDATION: If adding new rule (not editing), must select valid intent
+			if (!id) {
+				const selectedIntentId = document.getElementById("selectedIntentId").value;
+				if (!selectedIntentId) {
+					showNotification(
+						'Intent Required',
+						'Please select a valid intent from the dropdown list before saving.',
+						'warning'
+					);
+					document.getElementById("intentSearch").focus();
+					return;
+				}
+			}
+
+			// CRITICAL VALIDATION: Must select valid datasource
+			const selectedDatasourceId = document.getElementById("selectedDatasourceId").value;
+			if (!selectedDatasourceId) {
+				showNotification(
+					'Datasource Required',
+					'Please select a valid datasource from the dropdown list before saving.',
+					'warning'
+				);
+				document.getElementById("datasourceSearch").focus();
+				return;
+			}
+
+			const intentId = id ? rules.find(r => r.rule_id == id).intent_id : parseInt(document.getElementById("selectedIntentId").value);
+
+			const payload = {
+				intent_id: intentId,
+				language_code: document.getElementById("ruleLanguage").value,
+				rule_code: document.getElementById("ruleCode").value.trim(),
+				rule_name: document.getElementById("ruleName").value.trim(),
+				rule_description: document.getElementById("ruleDescription").value.trim(),
+				datasource_id: parseInt(selectedDatasourceId),
+				execution_order: parseInt(document.getElementById("ruleOrder").value),
+				severity: document.getElementById("ruleSeverity").value,
+				is_active: document.getElementById("statusToggle").classList.contains("active")
+			};
+
+			if (!payload.rule_code) {
+				showNotification(
+					'Rule Code Required',
+					'Please enter a rule code before saving.',
+					'warning'
+				);
+				return;
+			}
+
+			if (!payload.rule_name) {
+				showNotification(
+					'Rule Name Required',
+					'Please enter a rule name before saving.',
+					'warning'
+				);
+				return;
+			}
+
+			if (!payload.rule_description) {
+				showNotification(
+					'Rule Description Required',
+					'Please enter a rule description before saving.',
+					'warning'
+				);
+				return;
+			}
+
+			try {
+				const url = id ? `${API}/validation-rules/${id}` : `${API}/validation-rules`;
+				const method = id ? "PUT" : "POST";
+
+				const response = await fetch(url, {
+					method,
+					headers: {
+						"Content-Type": "application/json",
+						"X-Tenant-ID": tenantId
+					},
+					body: JSON.stringify(payload)
+				});
+
+				if (!response.ok) {
+					const error = await response.json();
+					throw new Error(error.detail || "Failed to save rule");
+				}
+
+				closeModal();
+				showNotification(
+					'Validation Rule Saved Successfully',
+					`The validation rule has been ${id ? 'updated' : 'created'} successfully.`,
+					'success'
+				);
+				loadData();
+			} catch (error) {
+				console.error("Error saving rule:", error);
+				showNotification(
+					'Failed to Save Rule',
+					error.message || 'An error occurred while saving the rule. Please try again.',
+					'error'
+				);
+			}
+		}
+
+		/* Delete rule */
+		function deleteRule(id) {
+			document.getElementById("deleteRuleId").value = id;
+			document.getElementById("deleteModal").classList.add("active");
+		}
+
+		function closeDeleteModal() {
+			document.getElementById("deleteModal").classList.remove("active");
+		}
+
+		async function confirmDelete() {
+			const id = document.getElementById("deleteRuleId").value;
+
+			try {
+				const response = await fetch(`${API}/validation-rules/${id}`, {
+					method: "DELETE",
+					headers: { 'X-Tenant-ID': tenantId }
+				});
+				if (!response.ok) {
+					throw new Error("Failed to delete rule");
+				}
+
+				closeDeleteModal();
+				showNotification(
+					'Validation Rule Deleted',
+					'The validation rule has been deleted successfully.',
+					'success'
+				);
+				loadData();
+			} catch (error) {
+				console.error("Error deleting rule:", error);
+				showNotification(
+					'Failed to Delete Rule',
+					error.message || 'An error occurred while deleting the rule. Please try again.',
+					'error'
+				);
+				closeDeleteModal();
+			}
+		}
+
+		/* Render table */
+		function renderTable() {
+			const tbody = document.getElementById("rulesTable");
+
+			let list = rules;
+
+			if (selectedIntentFilter !== null) {
+				list = list.filter(r => r.intent_id === selectedIntentFilter);
+			}
+
+			updateStatsBadge(list.length);
+
+			if (!list.length) {
+				document.getElementById("rulesTableContainer").style.display = "none";
+				document.getElementById("emptyState").style.display = "block";
+				return;
+			}
+
+			document.getElementById("rulesTableContainer").style.display = "table";
+			document.getElementById("emptyState").style.display = "none";
+
+			tbody.innerHTML = list.map(r => {
+				const intent = intents.find(i => i.intent_id === r.intent_id);
+				const datasource = datasources.find(d => d.datasource_id === r.datasource_id);
+
+				const intentName = intent ? intent.display_name : `Intent #${r.intent_id}`;
+				const datasourceName = datasource ? datasource.name : `Datasource #${r.datasource_id}`;
+
+				const statusClass = r.is_active ? "status-active" : "status-inactive";
+				const statusIcon = r.is_active
+					? '<i class="fas fa-check-circle"></i>'
+					: '<i class="fas fa-times-circle"></i>';
+				const statusText = r.is_active ? "Active" : "Inactive";
+
+				const shortDescription =
+					r.rule_description.length > 80
+						? escapeHtml(r.rule_description.slice(0, 80)) + "…"
+						: escapeHtml(r.rule_description);
+
+				return `
+      <!-- COLLAPSED ROW (5 COLUMNS ONLY) -->
+      <tr onclick="toggleExpandRule(${r.rule_id}, event)">
+        <!-- 1. RULE -->
+        <td>
+          <div class="rule-name">${escapeHtml(r.rule_name)}</div>
+          <div class="rule-description">${shortDescription}</div>
+        </td>
+
+        <!-- 2. INTENT (NAME ONLY) -->
+        <td>
+          <span class="intent-badge">
+            ${escapeHtml(intentName)}
+          </span>
+        </td>
+
+        <!-- 3. DATASOURCE (NAME ONLY) -->
+        <td>
+          <span class="datasource-badge">
+            <i class="fas fa-database"></i>
+            ${escapeHtml(datasourceName)}
+          </span>
+        </td>
+
+        <!-- 4. STATUS -->
+        <td>
+          <span class="status-badge ${statusClass}">
+            ${statusIcon}
+            ${statusText}
+          </span>
+        </td>
+
+        <!-- 5. ACTIONS -->
+        <td>
+          <div class="actions">
+            <button class="action-btn" onclick="editRule(${r.rule_id})">
+              <i class="fas fa-pen"></i> Edit
+            </button>
+            <button class="action-btn delete" onclick="deleteRule(${r.rule_id})">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      <!-- EXPANDED ROW (FULL DETAILS) -->
+      <tr class="expanded-row" id="expanded-rule-${r.rule_id}">
+        <td colspan="5">
+          <div class="expanded-content">
+            <div class="expanded-grid">
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Rule ID</div>
+                <div class="expanded-field-value">${r.rule_id}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Rule Code</div>
+                <div class="expanded-field-value">${escapeHtml(r.rule_code)}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Rule Name</div>
+                <div class="expanded-field-value">${escapeHtml(r.rule_name)}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Rule Description</div>
+                <div class="expanded-field-value">${escapeHtml(r.rule_description)}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Intent ID</div>
+                <div class="expanded-field-value">${r.intent_id}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Datasource ID</div>
+                <div class="expanded-field-value">${r.datasource_id}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Language</div>
+                <div class="expanded-field-value">${escapeHtml(r.language_code)}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Execution Order</div>
+                <div class="expanded-field-value">${r.execution_order}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Severity</div>
+                <div class="expanded-field-value">${r.severity}</div>
+              </div>
+
+              <div class="expanded-field">
+                <div class="expanded-field-label">Status</div>
+                <div class="expanded-field-value">${statusText}</div>
+              </div>
+
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+			}).join("");
+		}
+
+
+
+
+
+		// Close modals on backdrop click
+		document.getElementById('modalOverlay').addEventListener('click', e => {
+			if (e.target === e.currentTarget) closeModal();
+		});
+
+		document.getElementById('deleteModal').addEventListener('click', e => {
+			if (e.target === e.currentTarget) closeDeleteModal();
+		});
+
+		// Update next order when language changes
+		document.getElementById('ruleLanguage').addEventListener('change', function () {
+			const intentId = parseInt(document.getElementById('selectedIntentId').value);
+			if (intentId && !document.getElementById("ruleId").value) {
+				updateNextOrder(intentId);
+			}
+		});
+	</script>
+	<script src="responsive.js"></script>
+
+</body>
+
+</html>

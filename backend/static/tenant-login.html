@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Login - FlowEngine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 400px;
+            max-width: 90%;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #7f8c8d;
+            text-align: center;
+            font-size: 16px;
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            display: none;
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .help-text {
+            margin-top: 25px;
+            border-top: 1px solid #ecf0f1;
+            text-align: center;
+            border-radius: 6px;
+        }
+
+        .help-text p {
+            color: #95a5a6;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .help-text strong {
+            color: #7f8c8d;
+        }
+        #tenants{
+            border: 2px double rgb(150, 134, 134);
+            border-radius: 20px
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>FlowEngine</h1>
+        <h2>Tenant Login</h2>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="tenantId">Tenant ID</label>
+                <input 
+                    type="text" 
+                    id="tenantId" 
+                    name="tenantId" 
+                    placeholder="Enter your tenant ID" 
+                    required 
+                    autocomplete="off"
+                >
+            </div>
+            
+            <button type="submit">Login</button>
+            
+            <div id="errorMessage" class="error-message"></div>
+        </form>
+        
+        <div class="help-text">
+            <p><b>Select only from the following tenants.(Testing):</b></p>
+            <p id="tenants">tenant1, tenant2, demo, acme_corp, test_org</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const tenantId = document.getElementById('tenantId').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.style.display = 'none';
+            
+            if (!tenantId) {
+                showError('Please enter a tenant ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/tenants/validate/${tenantId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.valid) {
+                    sessionStorage.setItem('tenant_id', tenantId);
+                    window.location.href = 'index.html';
+                } else {
+                    showError('Invalid tenant ID. Please try again.');
+                }
+
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Login failed. Please check if the server is running.');
+            }
+        });
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
