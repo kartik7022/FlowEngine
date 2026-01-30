@@ -1172,7 +1172,7 @@
 				<table id="rulesTableContainer" style="display: none;">
 					<thead>
 						<tr>
-							<th>Rule Name</th>
+							<th>Rule Code</th>
 							<th>Intent</th>
 							<th>Datasource</th>
 							<th>Status</th>
@@ -1894,6 +1894,7 @@
 		}
 
 		/* Save rule */
+		/* Save rule */
 		async function saveRule() {
 			const id = document.getElementById("ruleId").value;
 
@@ -1925,44 +1926,88 @@
 
 			const intentId = id ? rules.find(r => r.rule_id == id).intent_id : parseInt(document.getElementById("selectedIntentId").value);
 
-			const payload = {
-				intent_id: intentId,
-				language_code: document.getElementById("ruleLanguage").value,
-				rule_code: document.getElementById("ruleCode").value.trim(),
-				rule_name: document.getElementById("ruleName").value.trim(),
-				rule_description: document.getElementById("ruleDescription").value.trim(),
-				datasource_id: parseInt(selectedDatasourceId),
-				execution_order: parseInt(document.getElementById("ruleOrder").value),
-				severity: document.getElementById("ruleSeverity").value,
-				is_active: document.getElementById("statusToggle").classList.contains("active")
-			};
+			const ruleCode = document.getElementById("ruleCode").value.trim();
+			const ruleName = document.getElementById("ruleName").value.trim();
+			const ruleDescription = document.getElementById("ruleDescription").value.trim();
 
-			if (!payload.rule_code) {
+			// Validate rule code
+			if (!ruleCode) {
 				showNotification(
 					'Rule Code Required',
 					'Please enter a rule code before saving.',
 					'warning'
 				);
+				document.getElementById("ruleCode").focus();
 				return;
 			}
 
-			if (!payload.rule_name) {
+			// Validate rule name
+			if (!ruleName) {
 				showNotification(
 					'Rule Name Required',
 					'Please enter a rule name before saving.',
 					'warning'
 				);
+				document.getElementById("ruleName").focus();
 				return;
 			}
 
-			if (!payload.rule_description) {
+			// Validate rule description
+			if (!ruleDescription) {
 				showNotification(
 					'Rule Description Required',
 					'Please enter a rule description before saving.',
 					'warning'
 				);
+				document.getElementById("ruleDescription").focus();
 				return;
 			}
+
+			// CHECK FOR DUPLICATE RULE CODE
+			if (!id) {
+				// When creating new rule - check if rule code already exists
+				const duplicateRule = rules.find(r =>
+					r.rule_code.toLowerCase() === ruleCode.toLowerCase()
+				);
+
+				if (duplicateRule) {
+					showNotification(
+						'Duplicate Rule Code',
+						`A validation rule with code "${ruleCode}" already exists. Please use a unique rule code.`,
+						'error'
+					);
+					document.getElementById("ruleCode").focus();
+					return;
+				}
+			} else {
+				// When editing - check if another rule (not this one) has the same code
+				const duplicateRule = rules.find(r =>
+					r.rule_code.toLowerCase() === ruleCode.toLowerCase() &&
+					r.rule_id != id
+				);
+
+				if (duplicateRule) {
+					showNotification(
+						'Duplicate Rule Code',
+						`Another validation rule already uses the code "${ruleCode}". Please use a unique rule code.`,
+						'error'
+					);
+					document.getElementById("ruleCode").focus();
+					return;
+				}
+			}
+
+			const payload = {
+				intent_id: intentId,
+				language_code: document.getElementById("ruleLanguage").value,
+				rule_code: ruleCode,
+				rule_name: ruleName,
+				rule_description: ruleDescription,
+				datasource_id: parseInt(selectedDatasourceId),
+				execution_order: parseInt(document.getElementById("ruleOrder").value),
+				severity: document.getElementById("ruleSeverity").value,
+				is_active: document.getElementById("statusToggle").classList.contains("active")
+			};
 
 			try {
 				const url = id ? `${API}/validation-rules/${id}` : `${API}/validation-rules`;
@@ -2079,111 +2124,111 @@
 						: escapeHtml(r.rule_description);
 
 				return `
-      <!-- COLLAPSED ROW (5 COLUMNS ONLY) -->
-      <tr onclick="toggleExpandRule(${r.rule_id}, event)">
-        <!-- 1. RULE -->
-        <td>
-          <div class="rule-name">${escapeHtml(r.rule_name)}</div>
-          <div class="rule-description">${shortDescription}</div>
-        </td>
+			<!-- COLLAPSED ROW (5 COLUMNS ONLY) -->
+			<tr onclick="toggleExpandRule(${r.rule_id}, event)">
+				<!-- 1. RULE -->
+				<td>
+				<div class="rule-code">${escapeHtml(r.rule_code)}</div>
+				
+				</td>
 
-        <!-- 2. INTENT (NAME ONLY) -->
-        <td>
-          <span class="intent-badge">
-            ${escapeHtml(intentName)}
-          </span>
-        </td>
+				<!-- 2. INTENT (NAME ONLY) -->
+				<td>
+				<span class="intent-badge">
+					${escapeHtml(intentName)}
+				</span>
+				</td>
 
-        <!-- 3. DATASOURCE (NAME ONLY) -->
-        <td>
-          <span class="datasource-badge">
-            <i class="fas fa-database"></i>
-            ${escapeHtml(datasourceName)}
-          </span>
-        </td>
+				<!-- 3. DATASOURCE (NAME ONLY) -->
+				<td>
+				<span class="datasource-badge">
+					<i class="fas fa-database"></i>
+					${escapeHtml(datasourceName)}
+				</span>
+				</td>
 
-        <!-- 4. STATUS -->
-        <td>
-          <span class="status-badge ${statusClass}">
-            ${statusIcon}
-            ${statusText}
-          </span>
-        </td>
+				<!-- 4. STATUS -->
+				<td>
+				<span class="status-badge ${statusClass}">
+					${statusIcon}
+					${statusText}
+				</span>
+				</td>
 
-        <!-- 5. ACTIONS -->
-        <td>
-          <div class="actions">
-            <button class="action-btn" onclick="editRule(${r.rule_id})">
-              <i class="fas fa-pen"></i> Edit
-            </button>
-            <button class="action-btn delete" onclick="deleteRule(${r.rule_id})">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </div>
-        </td>
-      </tr>
+				<!-- 5. ACTIONS -->
+				<td>
+				<div class="actions">
+					<button class="action-btn" onclick="editRule(${r.rule_id})">
+					<i class="fas fa-pen"></i> Edit
+					</button>
+					<button class="action-btn delete" onclick="deleteRule(${r.rule_id})">
+					<i class="fas fa-trash"></i> Delete
+					</button>
+				</div>
+				</td>
+			</tr>
 
-      <!-- EXPANDED ROW (FULL DETAILS) -->
-      <tr class="expanded-row" id="expanded-rule-${r.rule_id}">
-        <td colspan="5">
-          <div class="expanded-content">
-            <div class="expanded-grid">
+			<!-- EXPANDED ROW (FULL DETAILS) -->
+			<tr class="expanded-row" id="expanded-rule-${r.rule_id}">
+				<td colspan="5">
+				<div class="expanded-content">
+					<div class="expanded-grid">
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Rule ID</div>
-                <div class="expanded-field-value">${r.rule_id}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Rule ID</div>
+						<div class="expanded-field-value">${r.rule_id}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Rule Code</div>
-                <div class="expanded-field-value">${escapeHtml(r.rule_code)}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Rule Code</div>
+						<div class="expanded-field-value">${escapeHtml(r.rule_code)}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Rule Name</div>
-                <div class="expanded-field-value">${escapeHtml(r.rule_name)}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Rule Name</div>
+						<div class="expanded-field-value">${escapeHtml(r.rule_name)}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Rule Description</div>
-                <div class="expanded-field-value">${escapeHtml(r.rule_description)}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Rule Description</div>
+						<div class="expanded-field-value">${escapeHtml(r.rule_description)}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Intent ID</div>
-                <div class="expanded-field-value">${r.intent_id}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Intent ID</div>
+						<div class="expanded-field-value">${r.intent_id}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Datasource ID</div>
-                <div class="expanded-field-value">${r.datasource_id}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Datasource ID</div>
+						<div class="expanded-field-value">${r.datasource_id}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Language</div>
-                <div class="expanded-field-value">${escapeHtml(r.language_code)}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Language</div>
+						<div class="expanded-field-value">${escapeHtml(r.language_code)}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Execution Order</div>
-                <div class="expanded-field-value">${r.execution_order}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Execution Order</div>
+						<div class="expanded-field-value">${r.execution_order}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Severity</div>
-                <div class="expanded-field-value">${r.severity}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Severity</div>
+						<div class="expanded-field-value">${r.severity}</div>
+					</div>
 
-              <div class="expanded-field">
-                <div class="expanded-field-label">Status</div>
-                <div class="expanded-field-value">${statusText}</div>
-              </div>
+					<div class="expanded-field">
+						<div class="expanded-field-label">Status</div>
+						<div class="expanded-field-value">${statusText}</div>
+					</div>
 
-            </div>
-          </div>
-        </td>
-      </tr>
-    `;
+					</div>
+				</div>
+				</td>
+			</tr>
+			`;
 			}).join("");
 		}
 
